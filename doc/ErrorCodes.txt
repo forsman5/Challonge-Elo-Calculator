@@ -1,0 +1,8 @@
+1 - Using the character '-' in the tag of a player.
+2 - Unexpected IO exception, see the output method.
+3 - MATCHES_KEYWORD not found in a tournament (.tm) file.
+4 - config.cfg not found. Should output the expected location with the error code.
+5 - Unexpected uncommented lines found in config.cfg.
+6 - Incorrect date formatting. Should output with information as to where. Dates should be formatted in mm/dd/yyyy
+
+Report errors with codes to jrforsman@gmail.com or @powellsmash on twitter.

@@ -1,0 +1,70 @@
+Powell Top 16 Championship
+http://challonge.com/powelltop16/
+12/30/2015
+1337/100/85/75/60/60/45/45/40/35/30/25/15/15/10/10
+1. Michael R
+2. Zach R
+3. Jacob S
+4. Caleb F
+5. Aiden K
+5. Nick F
+7. Joe F
+7. Nicky S
+9. Michael H
+10. Ali S
+11. Joey H
+12. Tony G
+13. Ellery C
+13. Tom M
+15. Carson M
+15. Jack F
+Matches
+Jacob S 2-0 Jack F
+Nick F 2-0 Michael H
+Jacob S 2-0 Nick F
+Michael H 2-0 Jack F
+Jacob S 2-0 Michael H
+Nick F 2-0 Jack F
+Caleb F 2-0 Carson M
+Aiden K 2-0 Ali S
+Ali S 0-2 Caleb F
+Aiden K 2-0 Carson M
+Caleb F 0-2 Aiden K
+Ali S 2-0 Carson M
+Michael R 2-0 Joey H
+Joe F 2-1 Ellery C
+Ellery C 0-2 Michael R
+Joe F 2-1 Joey H
+Michael R 2-0 Joe F
+Ellery C 0-2 Joey H
+Nicky S 2-0 Tom M
+Zach R 2-0 Tony G
+Tony G 0-2 Nicky S
+Zach R 2-0 Tom M
+Nicky S 0-2 Zach R
+Tony G 0-2 Tom M
+Jacob S 3-2 Caleb F
+Michael R 3-0 Nicky S
+Nick F 1-3 Aiden K
+Joe F 0-3 Zach R
+Caleb F 3-2 Nicky S
+Nick F 3-1 Joe F
+Jacob S 1-3 Michael R
+Aiden K 0-3 Zach R
+Jacob S 3-0 Nick F
+Michael R 3-1 Zach R
+Caleb F 2-3 Jacob S
+Zach R 3-0 Jacob S
+Michael R 3-1 Zach R
+Michael H 3-1 Jack F
+Tom M 2-3 Tony G
+Joey H 3-0 Ellery C
+Jack F 2-3 Tom M
+Ellery C 3-0 Carson M
+Michael H 3-0 Tony G
+Joey H 3-1 Ali S
+Ali S 3-2 Tom M
+Michael H 3-1 Joey H
+Ali S 3-0 Tony G
+Ali S 3-2 Joey H
+Michael H 3-2 Ali S
