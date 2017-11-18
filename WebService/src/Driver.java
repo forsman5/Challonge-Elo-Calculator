@@ -33,10 +33,11 @@ public class Driver {
 		
 		for (Tournament t : tournies) {
 			//get and process players
-			//TODO debugging
-			System.out.println(t.name);
+			String url = "https://api.challonge.com/v1/tournaments/"+t.id+"/participants.json?api_key="+Constants.API_KEY;
+			ArrayList<JSONObject> json = executeRequest(url);
 			
-			//get and process matches
+			System.out.println(t.name);
+			//get and process matches 
 		}
 		
 		//update last checked
@@ -46,6 +47,7 @@ public class Driver {
 		}
 	}
 	
+
 	/*
 	 * Load the last date everything was checked out of database memory
 	 * 
@@ -88,43 +90,24 @@ public class Driver {
 	 * if an error occurs, returns null. Else, will return an arraylist of at least size 0.
 	 */
 	public static ArrayList<Tournament> getTournaments(String createdAfter) {
-		OkHttpClient client = new OkHttpClient();
-
 		//for most tournaments
 		String reqUrl = "https://api.challonge.com/v1/tournaments.json?state=ended&api_key=" + Constants.API_KEY + "&created_after="+createdAfter;
 		
+		ArrayList<JSONObject> json = executeRequest(reqUrl);
+		
 		//for any tournaments hosted in subdomains
-		//TODO idea: make subdomain constant an array, for many subdomains. Then, have this handle multiple different subdomains
-		String subUrl = reqUrl + "&subdomain=" + Constants.SUBDOMAIN_NAME;
-		
-		Request request = getNewRequest(reqUrl);
-		Request subdomain = getNewRequest(subUrl);
-		
-		//execute new requests
-		
-		Response response = null;
-		Response subResponse = null;
-		
-		try {
-			response = client.newCall(request).execute();
-			subResponse = client.newCall(subdomain).execute();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		
-		//check for failure
-		if (!(ensureSuccess(response) && ensureSuccess(subResponse))) {
-			return null;
-		}
-		
-		ArrayList<JSONObject> json = getJson(response);
-		ArrayList<JSONObject> subJson = getJson(subResponse);
-		
-		/*
-		 * Adding all json objects from the subdomain response into the main
-		 */
-		for (JSONObject j : subJson) {
-			json.add(j);
+		for (String s : Constants.SUBDOMAIN_NAME) {
+			String subUrl = reqUrl + "&subdomain=" + s;
+			
+			ArrayList<JSONObject> subJson = executeRequest(subUrl);
+			
+			/*
+			 * Adding all json objects from the subdomain response into the main
+			 */
+			for (JSONObject j : subJson) {
+				json.add(j);
+			}
+			
 		}
 		
 		//remove all tournaments that don't match a set of criteria
@@ -299,6 +282,38 @@ public class Driver {
 		for (JSONObject i : toRemove) {
 			arr.remove(i);
 		}
+	}
+	
+	/*
+	 * Given a string, create a request, execute the request, ensure the response is valid, and then return the set of JSONObjects
+	 * returned by the HTTP request.
+	 * 
+	 * If an invalid response is returned, this will return null.
+	 */
+	private static ArrayList<JSONObject> executeRequest(String req) {
+		OkHttpClient client = new OkHttpClient();
+		Request request = getNewRequest(req);
+		
+		//toReturn
+		ArrayList<JSONObject> json = null;
+		
+		//execute new requests
+		
+		Response response = null;
+		
+		try {
+			response = client.newCall(request).execute();
+		} catch (IOException e) {
+			//bad request
+			e.printStackTrace();
+		}
+		
+		//check for failure
+		if (ensureSuccess(response)) {
+			json = getJson(response);
+		} // else, return null
+		
+		return json;
 	}
 	
 	/*

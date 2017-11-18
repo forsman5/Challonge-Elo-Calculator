@@ -17,6 +17,6 @@ final class Constants {
 	/*
 	 * a subdomain to include tournaments from
 	 */
-	public final static String SUBDOMAIN_NAME = "powellsmash";
+	public final static String[] SUBDOMAIN_NAME = {"powellsmash"};
 		
 }
