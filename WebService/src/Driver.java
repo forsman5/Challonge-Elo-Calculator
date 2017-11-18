@@ -19,12 +19,18 @@ public class Driver {
 		//load last saved date
 		ArrayList<Tournament> tournies = null;
 		
-		try {
-			tournies = getTournaments(getLastCheckedDate());
-		} catch (Exception e) {
-			handleException(e);
+		//if an error occured
+		boolean flag = false;
+		
+		tournies = getTournaments(getLastCheckedDate());
+		
+		if (tournies == null) {
+			//setting it to an empty list
+			//this means that no execution will continue later, as the list is empty.
+			tournies = new ArrayList<>();
+			flag = true;
 		}
-				
+		
 		for (Tournament t : tournies) {
 			//get and process players
 			//TODO debugging
@@ -34,7 +40,10 @@ public class Driver {
 		}
 		
 		//update last checked
-		saveNewTimeChecked(System.currentTimeMillis());
+		if (!flag) {
+			//only if success... if no success, try again
+			saveNewTimeChecked(System.currentTimeMillis());
+		}
 	}
 	
 	/*
@@ -75,8 +84,10 @@ public class Driver {
 	 * Performs all related subdomains requests as well, and then filters the tournaments.
 	 * 
 	 * Returns an ArrayList of Tournament objects. This list contains every relevant tournament object.
+	 * 
+	 * if an error occurs, returns null. Else, will return an arraylist of at least size 0.
 	 */
-	public static ArrayList<Tournament> getTournaments(String createdAfter) throws Exception {
+	public static ArrayList<Tournament> getTournaments(String createdAfter) {
 		OkHttpClient client = new OkHttpClient();
 
 		//for most tournaments
@@ -101,14 +112,9 @@ public class Driver {
 			e.printStackTrace();
 		}
 		
-		//check for failures
-		boolean one = ensureSuccess(response);
-		boolean two = ensureSuccess(subResponse);
-		
-		//handle errors
-		if (!(one && two)) {
-			//TODO
-			throw new Exception("Bad HTTP Response");
+		//check for failure
+		if (!(ensureSuccess(response) && ensureSuccess(subResponse))) {
+			return null;
 		}
 		
 		ArrayList<JSONObject> json = getJson(response);
@@ -250,12 +256,24 @@ public class Driver {
 	
 	/*
 	 * Ensures that an HTTP response works. If not, returns false. If 200 OK, returns true
+	 * 
+	 * If returns false, will also log the error
 	 */
 	private static boolean ensureSuccess(Response rsp) {
 		//TODO
 		//check to make sure both returned with 200 OK, if not, do something -- exception, logging, send an email...
 		
-		return true;
+		boolean toReturn = true;
+		
+		//if bad,
+		//TODO
+		if (false) {
+			//handleBadResponse(rsp);
+			//log the response here
+			toReturn = false;
+		}
+		
+		return toReturn;
 	}
 
 	/*
@@ -293,19 +311,5 @@ public class Driver {
 			toReturn = true;
 		
 		return toReturn;
-	}
-	
-	/*
-	 * Handles an exception upon bad HTTP response
-	 */
-	private static void handleException(Exception e) {
-		//TODO
-		//reset last saved date
-		//halt execution
-		
-		//just try again tomorrow?
-		
-		//for now,
-		e.printStackTrace();
 	}
 }
