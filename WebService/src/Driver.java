@@ -17,7 +17,21 @@ import org.json.*;
 public class Driver {
 	public static void main (String [] args) {
 		//load last saved date
-		getTournaments(getLastCheckedDate());
+		ArrayList<Tournament> tournies = null;
+		
+		try {
+			tournies = getTournaments(getLastCheckedDate());
+		} catch (Exception e) {
+			handleException(e);
+		}
+				
+		for (Tournament t : tournies) {
+			//get and process players
+			//TODO debugging
+			System.out.println(t.name);
+			
+			//get and process matches
+		}
 		
 		//update last checked
 		saveNewTimeChecked(System.currentTimeMillis());
@@ -25,8 +39,10 @@ public class Driver {
 	
 	/*
 	 * Load the last date everything was checked out of database memory
+	 * 
+	 * Return it as a string formatted as YYYY-MM-DD
 	 */
-	private static Calendar getLastCheckedDate() {
+	private static String getLastCheckedDate() {
 		// TODO
 		// Temporary implementation
 		//long fromSql = ...
@@ -38,8 +54,10 @@ public class Driver {
 		} catch (java.text.ParseException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			
+			//long saved in a bad format in sql
 		}
-		return cal;
+		return getDateAsString(cal);
 	}
 	
 	/*
@@ -51,12 +69,14 @@ public class Driver {
 		//TODO
 	}
 
-	// methods may be placed in here, to be moved later depending on future architecting
-	public static void getTournaments(Calendar lastChecked) {
-		
-		//get created after string
-		String createdAfter = getDateAsString(lastChecked);
-		
+	/*
+	 * Request all the tournaments for the account set as the API_KEY in constants.java.
+	 * 
+	 * Performs all related subdomains requests as well, and then filters the tournaments.
+	 * 
+	 * Returns an ArrayList of Tournament objects. This list contains every relevant tournament object.
+	 */
+	public static ArrayList<Tournament> getTournaments(String createdAfter) throws Exception {
 		OkHttpClient client = new OkHttpClient();
 
 		//for most tournaments
@@ -82,8 +102,14 @@ public class Driver {
 		}
 		
 		//check for failures
-		ensureSuccess(response);
-		ensureSuccess(subResponse);
+		boolean one = ensureSuccess(response);
+		boolean two = ensureSuccess(subResponse);
+		
+		//handle errors
+		if (!(one && two)) {
+			//TODO
+			throw new Exception("Bad HTTP Response");
+		}
 		
 		ArrayList<JSONObject> json = getJson(response);
 		ArrayList<JSONObject> subJson = getJson(subResponse);
@@ -98,15 +124,24 @@ public class Driver {
 		//remove all tournaments that don't match a set of criteria
 		filter(json);
 		
-		//debugging TODO
+		//arrayList to return, full of tournament objects
+		ArrayList<Tournament> toReturn = new ArrayList<>();
+		
 		for (JSONObject j : json) {
-			System.out.println(j.get("name"));
+			//convert the new tournaments into tournament objects
+			
+			Tournament toAdd = new Tournament();
+			
+			toAdd.name = j.getString("name");
+			toAdd.dateStarted = j.getString("started_at");
+			toAdd.link = j.getString("full_challonge_url");
+			toAdd.id = j.getInt("id");
+			
+			toReturn.add(toAdd);
 		}
 		
-		
-		
-		//void for now...
-		//return a set of tournaments?
+		//return a set full of tournament objects
+		return toReturn;
 	}
 
 	/*
@@ -213,9 +248,14 @@ public class Driver {
 		return toReturn;
 	}
 	
-	private static void ensureSuccess(Response rsp) {
+	/*
+	 * Ensures that an HTTP response works. If not, returns false. If 200 OK, returns true
+	 */
+	private static boolean ensureSuccess(Response rsp) {
 		//TODO
 		//check to make sure both returned with 200 OK, if not, do something -- exception, logging, send an email...
+		
+		return true;
 	}
 
 	/*
@@ -228,9 +268,11 @@ public class Driver {
 		
 		//cannot remove while looping based on size
 		for (JSONObject j : arr) {
+			//cannot use get String here
+			//throws an exception if an integer or empty string is encountered... not sure why
 			String gameIdString = j.get("game_id").toString();
 			
-			if (isNull(gameIdString) || Integer.parseInt(gameIdString.toString()) != Constants.GAME_ID) {
+			if (isNull(gameIdString) || Integer.parseInt(gameIdString) != Constants.GAME_ID) {
 				toRemove.add(j);
 			}
 		}
@@ -251,5 +293,19 @@ public class Driver {
 			toReturn = true;
 		
 		return toReturn;
+	}
+	
+	/*
+	 * Handles an exception upon bad HTTP response
+	 */
+	private static void handleException(Exception e) {
+		//TODO
+		//reset last saved date
+		//halt execution
+		
+		//just try again tomorrow?
+		
+		//for now,
+		e.printStackTrace();
 	}
 }
