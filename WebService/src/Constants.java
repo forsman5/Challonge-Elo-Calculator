@@ -7,7 +7,7 @@ final class Constants {
 	/*
 	 * only include games played with this game id.
 	 */
-	public final static int GAME_ID = 0;
+	public final static int GAME_ID = 394;
 	
 	/*
 	 * api key used for authenication

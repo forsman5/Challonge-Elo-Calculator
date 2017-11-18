@@ -95,6 +95,9 @@ public class Driver {
 			json.add(j);
 		}
 		
+		//remove all tournaments that don't match a set of criteria
+		filter(json);
+		
 		//debugging TODO
 		for (JSONObject j : json) {
 			System.out.println(j.get("name"));
@@ -213,5 +216,40 @@ public class Driver {
 	private static void ensureSuccess(Response rsp) {
 		//TODO
 		//check to make sure both returned with 200 OK, if not, do something -- exception, logging, send an email...
+	}
+
+	/*
+	 * Removes any objects in the array list that do not match a set of criteria
+	 * 
+	 * This criteria is taken from Constants.java
+	 */
+	private static void filter(ArrayList<JSONObject> arr) {
+		ArrayList<JSONObject> toRemove = new ArrayList<>();
+		
+		//cannot remove while looping based on size
+		for (JSONObject j : arr) {
+			String gameIdString = j.get("game_id").toString();
+			
+			if (isNull(gameIdString) || Integer.parseInt(gameIdString.toString()) != Constants.GAME_ID) {
+				toRemove.add(j);
+			}
+		}
+		
+		//removing all undesirable records
+		for (JSONObject i : toRemove) {
+			arr.remove(i);
+		}
+	}
+	
+	/*
+	 * checks if a string is essentially null
+	 */
+	private static boolean isNull(String in) {
+		boolean toReturn = false;
+		
+		if (in == null || in.isEmpty() || in.trim().isEmpty() || in.equals("null")) 
+			toReturn = true;
+		
+		return toReturn;
 	}
 }
