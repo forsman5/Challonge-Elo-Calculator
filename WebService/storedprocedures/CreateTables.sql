@@ -18,6 +18,7 @@ CREATE TABLE tournaments
   tourney_id              int unsigned NOT NULL auto_increment,
   date_started       date NOT NULL,
   name			  varchar(255) NOT NULL,
+  link			  varchar(255),
   
   PRIMARY KEY     (tourney_id)
 );
