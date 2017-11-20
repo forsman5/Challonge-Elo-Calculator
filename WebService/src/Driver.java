@@ -16,6 +16,9 @@ import org.json.*;
  */
 public class Driver {
 	public static void main (String [] args) {
+		//process any new aliases before running the new tournaments
+		Alias.run();
+		
 		//load last saved date
 		ArrayList<Tournament> tournies = null;
 		
@@ -33,10 +36,19 @@ public class Driver {
 		
 		for (Tournament t : tournies) {
 			//get and process players
-			String url = "https://api.challonge.com/v1/tournaments/"+t.id+"/participants.json?api_key="+Constants.API_KEY;
-			ArrayList<JSONObject> json = executeRequest(url);
+			//String url = "https://api.challonge.com/v1/tournaments/"+t.id+"/participants.json?api_key="+Constants.API_KEY;
+			//ArrayList<JSONObject> json = executeRequest(url);
 			
+			//Get an array of player objects (from json)
+			//resolve aliases
+			
+			//get and process placings
+			//assign placings to player objects
+			//save this assignments
+			
+			//debugging
 			System.out.println(t.name);
+			
 			//get and process matches 
 		}
 		
