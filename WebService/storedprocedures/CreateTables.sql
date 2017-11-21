@@ -6,7 +6,7 @@ DROP TABLE IF EXISTS aliases;
 CREATE TABLE aliases
 (
   alias_id        int unsigned NOT NULL auto_increment,
-  player_id       varchar(255) NOT NULL,
+  name      	 varchar(255) NOT NULL UNIQUE,
   alias			  varchar(255) NOT NULL,
   
   PRIMARY KEY     (alias_id)

@@ -22,7 +22,7 @@ public class SQLUtilitiesTest {
 		x.name = "test2";
 		x.link = "challonge.com";
 		x.dateStarted = "2000-01-03";
-		x.id = 5003;
+		x.id = 5053;
 		
 		util.insertTournament(x);
 		

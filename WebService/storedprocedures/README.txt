@@ -8,6 +8,8 @@ for installation.
 Once installed, run this command:
 TODO
 
+For connecting using mySQL shell, use this command initially: \connect root@localhost
+
 Upon restarting the computer, the sql server must be restarted (if not selected to be done automatically).
 To do so:
 
