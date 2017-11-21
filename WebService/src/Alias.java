@@ -16,14 +16,12 @@ public class Alias {
 	 */
 	private static class AliasRecord { // TODO is static going to work here ?? 
 		public String alias;
-		public int PlayerId;
 		public String name;
 		
 		//no args constructor - none else needed, all fields are public (in a private class)
 		public AliasRecord() {
 			alias = null;
 			name = null;
-			PlayerId = -1;
 		}
 	}
 
@@ -50,7 +48,7 @@ public class Alias {
 				FileWriter fw = new FileWriter(Constants.ALIAS_OLD, true);
 				BufferedWriter writer = new BufferedWriter(fw);
 
-				writer.write(a.PlayerId + ":" + a.alias + "\n");
+				writer.write(a.name + ":" + a.alias + "\n");
 				
 				fw.close();
 				writer.close();
@@ -108,8 +106,6 @@ public class Alias {
 				//create an object 
 				AliasRecord x = new AliasRecord();
 				
-				//fill out new object
-				x.PlayerId = pId;
 				x.alias = alias;
 				x.name = name;
 				
