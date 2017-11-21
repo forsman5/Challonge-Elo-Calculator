@@ -44,13 +44,14 @@ public class SQLUtilities {
 			
 			ResultSet rs = cs.executeQuery();
 			
-			//not sure why this fixes many issues...
-			//does rs.next() load the next result in?
 			if (rs.next()) {
 				out = rs.getDate(1);
+			} else {
+				//return the epoch, as no data currently exists in the database
+				out = Date.valueOf("1970-01-01");
 			}
 		} catch (SQLException e) {
-			//TODO
+			//should be caught by next
 			e.printStackTrace();
 		}
 		
