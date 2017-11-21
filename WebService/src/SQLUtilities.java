@@ -116,17 +116,40 @@ public class SQLUtilities {
 	 * 	player ID must be unique in the database.
 	 */
 	public void savePlayer(Player toAdd) {
-		// TODO Auto-generated method stub
+		try {
+			CallableStatement cs = conn.prepareCall("{call InsertPlayer(?, ?, ?)}");
+			
+			//set parameters
+			cs.setInt(1, toAdd.player_id);
+			cs.setString(2, toAdd.name);
+			cs.setInt(3, toAdd.elo);
+			
+			cs.executeQuery();
+			
+		} catch (SQLException e) {
+			//TODO
+			e.printStackTrace();
+		}
 		
 	}
 
 	/*
 	 * Inserts the given alias into the database.
-	 * 
 	 */
 	public void addAlias(String name, String alias) {
-		// TODO Auto-generated method stub
-		
+		try {
+			CallableStatement cs = conn.prepareCall("{call InsertAlias(?, ?)}");
+			
+			//set parameters
+			cs.setString(1, name);
+			cs.setString(2, alias);
+			
+			cs.executeQuery();
+			
+		} catch (SQLException e) {
+			//TODO
+			e.printStackTrace();
+		}
 	}
 	
 	/*
@@ -153,8 +176,24 @@ public class SQLUtilities {
 	 * Allow the player id to be autofilled by the database
 	 */
 	public void savePlayerByName(String name) {
-		// TODO Auto-generated method stub
+		//create a player to invoke the constructor
 		
+		Player toInsert = new Player();
+		toInsert.name = name;
+		
+		try {
+			CallableStatement cs = conn.prepareCall("{call InsertPlayerName(?, ?)}");
+			
+			//set parameters
+			cs.setString(1, toInsert.name);
+			cs.setInt(2, toInsert.elo);
+			
+			cs.executeQuery();
+			
+		} catch (SQLException e) {
+			//TODO
+			e.printStackTrace();
+		}
 	}
 
 	/*
