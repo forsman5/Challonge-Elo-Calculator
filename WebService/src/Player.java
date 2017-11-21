@@ -20,5 +20,8 @@ public class Player {
 	//elo starts at 1000
 	public Player() {
 		elo = 1000;
+		
+		//can be used to check if never set
+		curr_id = -1;
 	}
 }

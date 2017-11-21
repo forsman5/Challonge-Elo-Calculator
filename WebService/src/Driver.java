@@ -40,12 +40,12 @@ public class Driver {
 			//get and process players
 			ArrayList<Player> players = getPlayers(t.id);
 			
-			//Get an array of player objects (from json)
-			//resolve aliases
-			
-			//get and process placings
-			//assign placings to player objects
-			//save this assignments
+			//get placings
+			for (Player p : players) {
+				//if (p.currId != -1) {
+				//savePlacing (p.currId, t)
+				//else savePlacing (p.id, t);
+			}
 			
 			//debugging
 			System.out.println(t.name);
