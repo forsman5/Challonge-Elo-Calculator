@@ -112,8 +112,13 @@ public class Driver {
 	 * then filters it for a series of noninteresting players. Returns a set of player objects.
 	 * 
 	 * if an error occurs, returns null. Else, will return an arraylist of at least size 0.
+	 * 
+	 * For players that do not already exist in the database, this method will save the newly created players to the database.
 	 */
 	public static ArrayList<Player> getPlayers(int tId) {
+		//sql driver for finding the true player_id (matching records)
+		SQLUtilities sql = new SQLUtilities();
+		
 		String url = "https://api.challonge.com/v1/tournaments/"+tId+"/participants.json?api_key="+Constants.API_KEY;
 		ArrayList<JSONObject> json = executeRequest(url);
 		
@@ -125,7 +130,24 @@ public class Driver {
 			Player toAdd = new Player();
 			
 			//fill the player object out
-			//TODO
+			int id = j.getInt("id");
+			
+			int returned = sql.checkForPlayerId(id);
+			if (returned == -1) {
+				//create new record
+				toAdd.player_id = id;
+				
+				toAdd.name = j.getString("name");
+				
+				//adding new player to the database
+				sql.savePlayer(toAdd);
+			} else {
+				toAdd.player_id = returned;
+				toAdd.curr_id = id;
+				
+				//getting from database
+				toAdd.name = sql.getPlayerName(id);
+			}
 			
 			toReturn.add(toAdd);
 		}

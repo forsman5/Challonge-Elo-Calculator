@@ -99,4 +99,50 @@ public class SQLUtilities {
 		
 		return conn;
 	}
+
+	/*
+	 * Check the player table to see if there exists a 
+	 */
+	public int checkForPlayerId(int id) {
+		// TODO Auto-generated method stub
+		return -1;
+	}
+
+	public String getPlayerName(int id) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public void savePlayer(Player toAdd) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void addAlias(String name, String alias) {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	/*
+	 * Method to get the id attached to this master name.
+	 * 
+	 * If no id is attached to this name, returns -1;
+	 */
+	public int getPlayerId(String name) {
+		//TODO
+		
+		int toReturn = 0;
+		
+		//select player id where name == null from players
+		
+		//if returned == null
+		//	toReturned = -1;
+		
+		return toReturn;
+	}
+
+	public void savePlayerByName(String name) {
+		// TODO Auto-generated method stub
+		
+	}
 }
