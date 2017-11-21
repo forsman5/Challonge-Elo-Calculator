@@ -140,7 +140,7 @@ public class Driver {
 				toAdd.name = name;
 				
 				//adding new player to the database
-				sql.savePlayer(toAdd);
+				sql.insertPlayer(toAdd);
 			} else {
 				toAdd.player_id = returned;
 				toAdd.curr_id = id;

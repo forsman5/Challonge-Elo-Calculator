@@ -27,6 +27,25 @@ public class SQLUtilities {
 	}
 	
 	/*
+	 * Gets the standard connection object used to connect to the database.
+	 */
+	private static Connection getConnection() {
+		String connectionString = "jdbc:mysql://localhost/" + Constants.DATABASE_NAME + "?"
+                + "user=" + Constants.DATABASE_USERNAME + "&password=" + Constants.DATABASE_PASSWORD+"&useSSL=false";
+
+		Connection conn = null;
+		
+		try {
+			conn = DriverManager.getConnection(connectionString);
+		} catch (SQLException e) {
+			e.printStackTrace();
+			//TODO
+		}
+		
+		return conn;
+	}
+	
+	/*
 	 * Load the date of the latest tournament stored in the database.
 	 * 
 	 * This should be used such that no searching or processing is done for any tournaments before
@@ -81,25 +100,6 @@ public class SQLUtilities {
 			e.printStackTrace();
 		}
 	}
-	
-	/*
-	 * Gets the standard connection object used to connect to the database.
-	 */
-	private static Connection getConnection() {
-		String connectionString = "jdbc:mysql://localhost/" + Constants.DATABASE_NAME + "?"
-                + "user=" + Constants.DATABASE_USERNAME + "&password=" + Constants.DATABASE_PASSWORD+"&useSSL=false";
-
-		Connection conn = null;
-		
-		try {
-			conn = DriverManager.getConnection(connectionString);
-		} catch (SQLException e) {
-			e.printStackTrace();
-			//TODO
-		}
-		
-		return conn;
-	}
 
 	/*
 	 * Gets the player name associated with this ID
@@ -115,7 +115,7 @@ public class SQLUtilities {
 	 * REQUIRES:
 	 * 	player ID must be unique in the database.
 	 */
-	public void savePlayer(Player toAdd) {
+	public void insertPlayer(Player toAdd) {
 		try {
 			CallableStatement cs = conn.prepareCall("{call InsertPlayer(?, ?, ?)}");
 			
@@ -136,7 +136,7 @@ public class SQLUtilities {
 	/*
 	 * Inserts the given alias into the database.
 	 */
-	public void addAlias(String name, String alias) {
+	public void insertAlias(String name, String alias) {
 		try {
 			CallableStatement cs = conn.prepareCall("{call InsertAlias(?, ?)}");
 			
@@ -175,7 +175,7 @@ public class SQLUtilities {
 	 * 
 	 * Allow the player id to be autofilled by the database
 	 */
-	public void savePlayerByName(String name) {
+	public void insertPlayerByName(String name) {
 		//create a player to invoke the constructor
 		
 		Player toInsert = new Player();

@@ -40,7 +40,7 @@ public class Alias {
 		//open file for writing (appending)
 		
 		for (AliasRecord a : aliases) {
-			sql.addAlias(a.name, a.alias);
+			sql.insertAlias(a.name, a.alias);
 			
 			//append the data to the old file
 			try {
@@ -101,7 +101,7 @@ public class Alias {
 			if (pId == -1) {
 				//create new player record, and save it to the database.
 				
-				sql.savePlayerByName(name);
+				sql.insertPlayerByName(name);
 			} else {
 				//create an object 
 				AliasRecord x = new AliasRecord();
