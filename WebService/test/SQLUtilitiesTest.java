@@ -65,4 +65,26 @@ public class SQLUtilitiesTest {
 		
 		assertTrue(true);
 	}
+	
+	@Test
+	public void testGetPlayerId() {
+		SQLUtilities util = new SQLUtilities();
+		
+		String name = "xy";
+		
+		int returned = util.getPlayerId(name);
+		
+		assertEquals(1, returned);
+	}
+	
+	@Test
+	public void testGetPlayerIdFails() {
+		SQLUtilities util = new SQLUtilities();
+		
+		String name = "yyz";
+		
+		int returned = util.getPlayerId(name);
+		
+		assertEquals(-1, returned);
+	}
 }

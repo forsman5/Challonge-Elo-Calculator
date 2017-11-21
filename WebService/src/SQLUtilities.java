@@ -158,14 +158,25 @@ public class SQLUtilities {
 	 * If no id is attached to this name, returns -1;
 	 */
 	public int getPlayerId(String name) {
-		//TODO
+		int toReturn = -1;
 		
-		int toReturn = 0;
-		
-		//select player id where name == name from players
-		
-		//if returned == null
-		//	toReturned = -1;
+		try {
+			CallableStatement cs = conn.prepareCall("{call GetPlayerID(?, ?)}");
+			cs.setString(1, name);
+			cs.registerOutParameter(2, Types.INTEGER);
+			cs.setInt(2, toReturn);
+			
+			ResultSet rs = cs.executeQuery();
+			
+			if (rs.next()) {
+				toReturn = rs.getInt(1);
+			}
+			
+			//else, toReturn already initialized to -1
+		} catch (SQLException e) {
+			//should be caught by next
+			e.printStackTrace();
+		}
 		
 		return toReturn;
 	}
@@ -205,13 +216,22 @@ public class SQLUtilities {
 		int id = getPlayerId(name);
 		
 		if (id == -1) {
-			String trueName = ""; //query the alias database for the name attached to this
-			id = getPlayerId(trueName);
+			String trueName = getNameFromAlias(name); //query the alias database for the name attached to this
+			
+			if (!trueName.equals("null")) {
+				id = getPlayerId(trueName);
+			}
+			
+			//else do nothing, id remains -1
 		}
 		
 		//else do nothing, return the original id
 		
-		// TODO Auto-generated method stub
 		return id;
+	}
+
+	public String getNameFromAlias(String name) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }
