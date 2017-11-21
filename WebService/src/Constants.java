@@ -69,4 +69,11 @@ final class Constants {
 	 * Port the database was created using.
 	 */
 	public final static int DATABASE_PORT = 3306;
+  
+  /*
+	 * Determines if the / or \ character is allowed in player names.
+	 * 
+	 * This is set because, often, someone would be subbed in, mid bracket. These results are being discarded.
+	 */
+	public final static boolean ALLOW_SLASHES = false;
 }
