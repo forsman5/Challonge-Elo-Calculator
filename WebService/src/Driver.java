@@ -251,7 +251,6 @@ public class Driver {
 	 * If returns false, will also log the error
 	 */
 	private static boolean ensureSuccess(Response rsp) {
-		//TODO
 		//check to make sure both returned with 200 OK, if not, do something -- exception, logging, send an email...
 		
 		boolean toReturn = true;

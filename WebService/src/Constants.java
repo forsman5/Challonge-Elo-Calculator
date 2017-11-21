@@ -25,12 +25,12 @@ final class Constants {
 	/*
 	 * Location new aliases are placed into.
 	 */
-	public final static String ALIAS_FILE = "alias.dat";
+	public final static String ALIAS_FILE = "dat/alias.dat";
 	
 	/*
 	 * Location old aliases are moved to after being read.
 	 */
-	public final static String ALIAS_OLD = "old_alias.dat";
+	public final static String ALIAS_OLD = "dat/old_alias.dat";
 	
 	/*
 	 * This is a setting to turn on or off the alias suggestion feature.
