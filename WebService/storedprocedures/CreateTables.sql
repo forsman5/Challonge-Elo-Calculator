@@ -28,7 +28,7 @@ CREATE TABLE players
 (
   player_id int unsigned NOT NULL auto_increment,
   elo       int unsigned NOT NULL,
-  name		varchar(255) NOT NULL,
+  name		varchar(255) NOT NULL UNIQUE,
   
   PRIMARY KEY     (player_id)
 );

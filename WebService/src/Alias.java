@@ -17,18 +17,13 @@ public class Alias {
 	private static class AliasRecord { // TODO is static going to work here ?? 
 		public String alias;
 		public int PlayerId;
+		public String name;
 		
 		//no args constructor - none else needed, all fields are public (in a private class)
 		public AliasRecord() {
 			alias = null;
+			name = null;
 			PlayerId = -1;
-		}
-		
-		/*
-		 * Save this alias to the database, creating a new record in the alias table.
-		 */
-		public void save() {
-			//TODO
 		}
 	}
 
@@ -38,13 +33,16 @@ public class Alias {
 	 * Reads from a constant in the constant class, saves to another constant.
 	 */
 	public static void run() {
+		//for saving to the database
+		SQLUtilities sql = new SQLUtilities();
+		
 		//read new aliases to process
 		ArrayList<AliasRecord> aliases = getAliases();
 		
 		//open file for writing (appending)
 		
 		for (AliasRecord a : aliases) {
-			a.save();
+			sql.addAlias(a.name, a.alias);
 			
 			//append the data to the old file
 			try {
@@ -74,6 +72,8 @@ public class Alias {
 	 * Clears the Constants.Alias file after reading.
 	 */
 	private static ArrayList<AliasRecord> getAliases() {
+		SQLUtilities sql = new SQLUtilities();
+		
 		ArrayList<AliasRecord> toReturn = new ArrayList<>();
 		
 		Scanner inFile = null;
@@ -97,12 +97,13 @@ public class Alias {
 			String alias = line.substring(line.indexOf(':') + 1, line.indexOf('\n'));
 			
 			//get the id for the name from the database.
-			int pId = getPlayerId(name);
+			int pId = sql.getPlayerId(name);
 			
 			//if this player exists
 			if (pId == -1) {
 				//create new player record, and save it to the database.
-				//TODO ???
+				
+				sql.savePlayerByName(name);
 			} else {
 				//create an object 
 				AliasRecord x = new AliasRecord();
@@ -110,6 +111,7 @@ public class Alias {
 				//fill out new object
 				x.PlayerId = pId;
 				x.alias = alias;
+				x.name = name;
 				
 				//add to list
 				toReturn.add(x);
@@ -132,24 +134,6 @@ public class Alias {
 			 * and already would have returned out of this method
 			 */
 		}
-		
-		return toReturn;
-	}
-	
-	/*
-	 * Method to get the id attached to this master name.
-	 * 
-	 * If no id is attached to this name, returns -1;
-	 */
-	public static int getPlayerId(String name) {
-		//TODO
-		
-		int toReturn = 0;
-		
-		//SELECT TOP PlayerId FROM PLAYERS WHERE Name = name
-		
-		//if returned == null
-		//	toReturned = -1;
 		
 		return toReturn;
 	}
