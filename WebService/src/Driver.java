@@ -131,13 +131,13 @@ public class Driver {
 			
 			//fill the player object out
 			int id = j.getInt("id");
+			String name = j.getString("name");
 			
-			int returned = sql.checkForPlayerId(id);
+			int returned = sql.getIDFromAlias(name);
 			if (returned == -1) {
 				//create new record
 				toAdd.player_id = id;
-				
-				toAdd.name = j.getString("name");
+				toAdd.name = name;
 				
 				//adding new player to the database
 				sql.savePlayer(toAdd);

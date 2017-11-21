@@ -101,23 +101,28 @@ public class SQLUtilities {
 	}
 
 	/*
-	 * Check the player table to see if there exists a 
+	 * Gets the player name associated with this ID
 	 */
-	public int checkForPlayerId(int id) {
-		// TODO Auto-generated method stub
-		return -1;
-	}
-
 	public String getPlayerName(int id) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
+	/*
+	 * Inserts the given player into the database.
+	 * 
+	 * REQUIRES:
+	 * 	player ID must be unique in the database.
+	 */
 	public void savePlayer(Player toAdd) {
 		// TODO Auto-generated method stub
 		
 	}
 
+	/*
+	 * Inserts the given alias into the database.
+	 * 
+	 */
 	public void addAlias(String name, String alias) {
 		// TODO Auto-generated method stub
 		
@@ -133,7 +138,7 @@ public class SQLUtilities {
 		
 		int toReturn = 0;
 		
-		//select player id where name == null from players
+		//select player id where name == name from players
 		
 		//if returned == null
 		//	toReturned = -1;
@@ -141,8 +146,32 @@ public class SQLUtilities {
 		return toReturn;
 	}
 
+	/*
+	 * Create a new player record in the database, using this name.
+	 * 
+	 * Allow the player id to be autofilled by the database
+	 */
 	public void savePlayerByName(String name) {
 		// TODO Auto-generated method stub
 		
+	}
+
+	/*
+	 * Given a name, check all the names and aliases to find the true player ID for this record.
+	 * 
+	 * Returns -1 if this ID is never found
+	 */
+	public int getIDFromAlias(String name) {
+		int id = getPlayerId(name);
+		
+		if (id == -1) {
+			String trueName = ""; //query the alias database for the name attached to this
+			id = getPlayerId(trueName);
+		}
+		
+		//else do nothing, return the original id
+		
+		// TODO Auto-generated method stub
+		return id;
 	}
 }
