@@ -47,4 +47,11 @@ final class Constants {
 	 * save to a new db?
 	 */
 	public final static boolean SUGGEST_ALIAS = false;
+	
+	/*
+	 * Determines if the / or \ character is allowed in player names.
+	 * 
+	 * This is set because, often, someone would be subbed in, mid bracket. These results are being discarded.
+	 */
+	public final static boolean ALLOW_SLASHES = false;
 }

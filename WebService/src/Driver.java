@@ -36,8 +36,7 @@ public class Driver {
 		
 		for (Tournament t : tournies) {
 			//get and process players
-			//String url = "https://api.challonge.com/v1/tournaments/"+t.id+"/participants.json?api_key="+Constants.API_KEY;
-			//ArrayList<JSONObject> json = executeRequest(url);
+			ArrayList<Player> players = getPlayers(t.id);
 			
 			//Get an array of player objects (from json)
 			//resolve aliases
@@ -123,7 +122,7 @@ public class Driver {
 		}
 		
 		//remove all tournaments that don't match a set of criteria
-		filter(json);
+		filterTournaments(json);
 		
 		//arrayList to return, full of tournament objects
 		ArrayList<Tournament> toReturn = new ArrayList<>();
@@ -144,6 +143,56 @@ public class Driver {
 		//return a set full of tournament objects
 		return toReturn;
 	}
+	
+	/*
+	 * Request all the players for the provided tournament id. After retreiving the data,
+	 * then filters it for a series of noninteresting players. Returns a set of player objects.
+	 * 
+	 * if an error occurs, returns null. Else, will return an arraylist of at least size 0.
+	 */
+	public static ArrayList<Player> getPlayers(int tId) {
+		String url = "https://api.challonge.com/v1/tournaments/"+tId+"/participants.json?api_key="+Constants.API_KEY;
+		ArrayList<JSONObject> json = executeRequest(url);
+		
+		filterPlayers(json);
+		
+		ArrayList<Player> toReturn = new ArrayList<>();
+		
+		for (JSONObject j : json) {
+			Player toAdd = new Player();
+			
+			//fill the player object out
+			//TODO
+			
+			toReturn.add(toAdd);
+		}
+		
+		return toReturn;
+	}
+
+	private static void filterPlayers(ArrayList<JSONObject> json) {
+		ArrayList<JSONObject> toRemove = new ArrayList<>();
+
+		for (JSONObject j : json) {
+			String name = j.getString("name");
+			
+			if (!Constants.ALLOW_SLASHES) {
+				//checking if it contains
+				CharSequence x = "\\";
+				CharSequence y = "/";
+				
+				if (name.contains(x) || name.contains(y)) {
+					toRemove.add(j);
+				}
+			}
+		}
+		
+		//removing all undesirable records
+		for (JSONObject i : toRemove) {
+			json.remove(i);
+		}
+	}
+
 
 	/*
 	 * Constructs a new HTTP request based on the given url
@@ -276,7 +325,7 @@ public class Driver {
 	 * 
 	 * This criteria is taken from Constants.java
 	 */
-	private static void filter(ArrayList<JSONObject> arr) {
+	private static void filterTournaments(ArrayList<JSONObject> arr) {
 		ArrayList<JSONObject> toRemove = new ArrayList<>();
 		
 		//cannot remove while looping based on size
