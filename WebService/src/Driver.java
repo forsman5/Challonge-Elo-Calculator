@@ -22,19 +22,21 @@ public class Driver {
 		//load last saved date
 		ArrayList<Tournament> tournies = null;
 		
-		//if an error occured
-		boolean flag = false;
+		//sql drive
+		SQLUtilities util = new SQLUtilities();
 		
-		tournies = getTournaments(getLastCheckedDate());
+		tournies = getTournaments(util.getLastCheckedDate());
 		
 		if (tournies == null) {
 			//setting it to an empty list
 			//this means that no execution will continue later, as the list is empty.
 			tournies = new ArrayList<>();
-			flag = true;
 		}
 		
 		for (Tournament t : tournies) {
+			//save every new tournament
+			util.insertTournament(t);
+			
 			//get and process players
 			//String url = "https://api.challonge.com/v1/tournaments/"+t.id+"/participants.json?api_key="+Constants.API_KEY;
 			//ArrayList<JSONObject> json = executeRequest(url);
@@ -51,46 +53,7 @@ public class Driver {
 			
 			//get and process matches 
 		}
-		
-		//update last checked
-		if (!flag) {
-			//only if success... if no success, try again
-			saveNewTimeChecked(System.currentTimeMillis());
-		}
-	}
-	
-
-	/*
-	 * Load the last date everything was checked out of database memory
-	 * 
-	 * Return it as a string formatted as YYYY-MM-DD
-	 */
-	private static String getLastCheckedDate() {
-		// TODO
-		// Temporary implementation
-		//long fromSql = ...
-		
-		Calendar cal = Calendar.getInstance();
-		DateFormat df = DateFormat.getDateInstance();
-		try {
-			cal.setTime(df.parse("January 1, 1970"));// this string should be taken from sql
-		} catch (java.text.ParseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			
-			//long saved in a bad format in sql
-		}
-		return getDateAsString(cal);
-	}
-	
-	/*
-	 * Save the toSave parameter to sql, as the time the challonge api was last checked
-	 * 
-	 * toSave represents the number of milliseconds since Jan 1 1970 (the unix epoch)
-	 */
-	private static void saveNewTimeChecked(long toSave) {
-		//TODO
-	}
+	}	
 
 	/*
 	 * Request all the tournaments for the account set as the API_KEY in constants.java.
@@ -155,44 +118,6 @@ public class Driver {
 				  .addHeader("cache-control", "no-cache")
 				  .build();
 		return request;
-	}
-	
-
-	/*
-	 * gets the date to pass to the HTTP request
-	 * 
-	 * Uses the data stored in the calendar parameter
-	 * 
-	 * returns in the format YYYY-MM-DD
-	 */
-	private static String getDateAsString(Calendar lastChecked) {
-		String year = "" + lastChecked.get(Calendar.YEAR);
-		String mon = null;
-		String day = null;
-		
-		int month = lastChecked.get(Calendar.MONTH);
-		int d = lastChecked.get(Calendar.DAY_OF_MONTH);
-		
-		//0 - 11, we want 1 - 12
-		month ++;
-		
-		//0 - 29, we want 1 - 30
-		d ++;
-		
-		//ensuring both digits exist
-		if (month < 10) {
-			mon = "0" + month;
-		} else {
-			mon = "" + month;
-		}
-		
-		if (d < 10) {
-			day = "0" + month;
-		} else {
-			day = "" + month;
-		}
-
-		return year + "-" + mon + "-" + day;
 	}
 
 	/*
