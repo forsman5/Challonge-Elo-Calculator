@@ -49,6 +49,28 @@ final class Constants {
 	public final static boolean SUGGEST_ALIAS = false;
 	
 	/*
+	 * Name of the database to connect to.
+	 */
+	public final static String DATABASE_NAME = "powellsmashdb";
+	
+	/*
+	 * Username of the user to connect as.
+	 * 
+	 * (Can only guarantee no errors if this user is an admin)
+	 */
+	public final static String DATABASE_USERNAME = "root";
+	
+	/*
+	 * Password for the given username.
+	 */
+	public final static String DATABASE_PASSWORD = "admin";
+	
+	/*
+	 * Port the database was created using.
+	 */
+	public final static int DATABASE_PORT = 3306;
+  
+  /*
 	 * Determines if the / or \ character is allowed in player names.
 	 * 
 	 * This is set because, often, someone would be subbed in, mid bracket. These results are being discarded.
