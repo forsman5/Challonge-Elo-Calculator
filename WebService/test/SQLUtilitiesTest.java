@@ -29,4 +29,40 @@ public class SQLUtilitiesTest {
 		assertTrue(true);
 	}
 	
+	@Test
+	public void testInsertAlias() {
+		SQLUtilities util = new SQLUtilities();
+		
+		String name = "xy";
+		String alias = "yz";
+		
+		util.insertAlias(name, alias);
+		
+		assertTrue(true);
+	}
+	
+	@Test
+	public void testInsertPlayerByName() {
+		SQLUtilities util = new SQLUtilities();
+		
+		String name = "xy";
+		
+		util.insertPlayerByName(name);
+		
+		assertTrue(true);
+	}
+	
+	@Test
+	public void testInsertPlayer() {
+		SQLUtilities util = new SQLUtilities();
+		
+		Player x = new Player();
+		
+		x.player_id = 100;
+		x.name = "joe";
+		
+		util.insertPlayer(x);
+		
+		assertTrue(true);
+	}
 }
