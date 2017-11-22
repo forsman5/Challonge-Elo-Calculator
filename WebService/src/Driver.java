@@ -177,6 +177,13 @@ public class Driver {
 			name = name.substring(0, name.indexOf('+')).trim() + " and " + name.substring(name.indexOf('+') + 1).trim();
 		}
 		
+		//remove nicknames
+		int firstOccurence = name.indexOf('\"');
+		if (firstOccurence != -1) {
+			//plus 2 - eat space after end of second quote
+			name = name.substring(0, firstOccurence) + name.substring(name.indexOf('\"', firstOccurence + 1) + 2);
+		}
+		
 		return name.trim();
 	}
 
@@ -192,6 +199,15 @@ public class Driver {
 				CharSequence y = "/";
 				
 				if (name.contains(x) || name.contains(y)) {
+					toRemove.add(j);
+				}
+			}
+			
+			for (String flag : Constants.DISCARD_FLAGS) {
+				CharSequence f = flag;
+				
+				if (name.contains(f)) {
+					// if this name contains one of the flags, remove it
 					toRemove.add(j);
 				}
 			}
@@ -322,6 +338,9 @@ public class Driver {
 	 * Removes any matches score 0-0, or disqualifications (one player scored -1);
 	 */
 	private static void filterMatches(ArrayList<JSONObject> arr) {
+		// if either of the players do not exist in the database, do not log this entry
+		// this means that one of players was filtered out
+		
 		//TODO
 	}
 	

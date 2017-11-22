@@ -21,7 +21,6 @@ final class Constants {
 	 */
 	public final static String[] SUBDOMAIN_NAME = {"powellsmash"};
 		
-	
 	/*
 	 * Location new aliases are placed into.
 	 */
@@ -76,6 +75,13 @@ final class Constants {
 	 * This is set because, often, someone would be subbed in, mid bracket. These results are being discarded.
 	 */
 	public final static boolean ALLOW_SLASHES = false;
+	
+	/*
+	 * If a name contains any of these strings, the player record (and all matches they are a part of) will be dropped.
+	 * 
+	 * Used to discard spacer entries, for example.
+	 */
+	public final static String[] DISCARD_FLAGS = {"Spacer", "Chad + Sahil + Carson", "CPU"};
 	
 	/*
 	 * checks if a string is essentially null
