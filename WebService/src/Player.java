@@ -14,6 +14,9 @@ public class Player {
 	public int elo;
 	public String name;
 	
+	//where this player object finished
+	public int final_placing;
+	
 	//THIS DOES NOT GET SAVED
 	public int curr_id;
 	

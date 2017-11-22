@@ -35,15 +35,9 @@ public class Driver {
 			//get and process players
 			ArrayList<Player> players = getPlayers(t.id);
 			
-			//get placings
-			//for (Player p : players) {
-				//if (p.currId != -1) {
-				//savePlacing (p.currId, t)
-				//else savePlacing (p.id, t);
-			//}
-			
-			//debugging
-			//System.out.println(t.name);
+			for (Player p : players) {
+				util.savePlacing(p.player_id, t.id, p.final_placing);
+			}
 			
 			//get and process matches 
 		}
@@ -148,12 +142,30 @@ public class Driver {
 				sql.insertPlayer(toAdd);
 			} else {
 				toAdd.player_id = returned;
-				toAdd.curr_id = id;
 				
 				//getting from database
 				toAdd.name = sql.getPlayerName(id);
 			}
 			
+			toAdd.curr_id = id;
+			Object temp = j.get("final_rank");
+			
+			if (Constants.isNull(temp.toString())) {
+				//did not advance out of the group stage
+				//DECIDE HOW TO HANDLE THIS
+				//TODO
+				/*
+				 * Get seed, as this is seed going into the final round (or result out of the group stage)
+				 * 
+				 * What if it is a seeding tourney - a pools tourney?
+				 * Do we want to display final placing for the pools stage of a tourney that then opens up to 
+				 * amateur / pro?
+				 */
+				toAdd.final_placing = j.getInt("seed");
+			} else {
+				toAdd.final_placing = j.getInt("final_rank");
+			}
+					
 			toReturn.add(toAdd);
 		}
 		

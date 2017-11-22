@@ -292,4 +292,20 @@ public class SQLUtilities {
 			e.printStackTrace();
 		}
 	}
+
+	public void savePlacing(int player_id, int t_id, int final_placing) {
+		try {
+			CallableStatement cs = conn.prepareCall("{call InsertPlacing(?, ?, ?)}");
+			
+			//set parameters
+			cs.setInt(1, player_id);
+			cs.setInt(2, t_id);
+			cs.setInt(3, final_placing);
+			
+			cs.executeQuery();
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
 }

@@ -44,5 +44,16 @@ CREATE TABLE matches
   
   PRIMARY KEY     (match_id)
 );
+
+DROP TABLE IF EXISTS placings;
+CREATE TABLE placings
+(
+  placing_id  int unsigned NOT NULL auto_increment,
+  player_id  int unsigned NOT NULL,
+  tourney_id int unsigned NOT NULL,
+  placing int unsigned NOT NULL,
+  
+  PRIMARY KEY     (placing_id)
+);
 END //
 DELIMITER ;
