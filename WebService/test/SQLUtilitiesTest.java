@@ -2,6 +2,15 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
+/*
+ * Test class to make running single methods easier.
+ * 
+ * TODO
+ * split class - one test insert, one test gets.
+ * Easier to rerun all the gets multiple times, with only one running of the inserts.
+ * Add a drop test case at the beginning of all the inserts.
+ * 		-add a drop method in sqlUtilities
+ */
 public class SQLUtilitiesTest {
 
 	//for ensuring all tests match
@@ -78,7 +87,7 @@ public class SQLUtilitiesTest {
 		
 		int returned = util.getPlayerID(name);
 		
-		assertEquals(101, returned);
+		assertEquals(1, returned);
 	}
 	
 	@Test
@@ -111,7 +120,7 @@ public class SQLUtilitiesTest {
 		
 		int returned = util.getIDFromAlias(name);
 		
-		assertEquals(101, returned);
+		assertEquals(1, returned);
 	}
 	
 	@Test
@@ -122,6 +131,6 @@ public class SQLUtilitiesTest {
 		
 		int returned = util.getPlayerID(name);
 		
-		assertEquals(101, returned);
+		assertEquals(1, returned);
 	}
 }

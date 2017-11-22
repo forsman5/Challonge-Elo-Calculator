@@ -4,8 +4,12 @@ import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Types;
 
+/*
+ * Class to mock the jdbc driver, and to connect to the mysql implementation.
+ * 
+ * All sql interactions must come through here.
+ */
 public class SQLUtilities {
 	
 	private Connection conn = null;

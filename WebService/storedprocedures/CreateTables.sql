@@ -5,11 +5,10 @@ BEGIN
 DROP TABLE IF EXISTS aliases;
 CREATE TABLE aliases
 (
-  alias_id        int unsigned NOT NULL auto_increment,
   name      	 varchar(255) NOT NULL,
-  alias			  varchar(255) NOT NULL UNIQUE,
+  alias			  varchar(255) NOT NULL,
   
-  PRIMARY KEY     (alias_id)
+  PRIMARY KEY     (alias)
 );
 
 DROP TABLE IF EXISTS tournaments;
