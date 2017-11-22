@@ -5,11 +5,15 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
 /*
  * Class to mock the jdbc driver, and to connect to the mysql implementation.
  * 
  * All sql interactions must come through here.
+ * 
+ * TODO
+ * Add logging for every entry added
  */
 public class SQLUtilities {
 	
@@ -55,6 +59,8 @@ public class SQLUtilities {
 	 * This should be used such that no searching or processing is done for any tournaments before
 	 * this date.
 	 * 
+	 * Adds one day to the date, so only checks after the latest tournament, not on that day.
+	 * 
 	 * Return it as a string formatted as YYYY-MM-DD
 	 */
 	public String getLastCheckedDate() {
@@ -67,6 +73,12 @@ public class SQLUtilities {
 			
 			if (rs.next()) {
 				out = rs.getDate(1);
+				
+				//add a day
+				Calendar c = Calendar.getInstance();
+				c.setTime(out);
+				c.add(Calendar.DATE, 1);
+				out = new java.sql.Date(c.getTimeInMillis());
 			} else {
 				//return the epoch, as no data currently exists in the database
 				out = Date.valueOf("1970-01-01");
