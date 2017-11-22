@@ -4,6 +4,10 @@ import org.junit.Test;
 
 public class SQLUtilitiesTest {
 
+	//for ensuring all tests match
+	private final String TEST_NAME = "joe";
+	private final String TEST_ALIAS = "ractor";
+	
 	@Test
 	public void testGetLastCheckedDate() {
 		SQLUtilities util = new SQLUtilities();
@@ -22,7 +26,7 @@ public class SQLUtilitiesTest {
 		x.name = "test2";
 		x.link = "challonge.com";
 		x.dateStarted = "2000-01-03";
-		x.id = 5053;
+		x.id = 5054;
 		
 		util.insertTournament(x);
 		
@@ -33,8 +37,8 @@ public class SQLUtilitiesTest {
 	public void testInsertAlias() {
 		SQLUtilities util = new SQLUtilities();
 		
-		String name = "xy";
-		String alias = "yz";
+		String name = TEST_NAME;
+		String alias = TEST_ALIAS;
 		
 		util.insertAlias(name, alias);
 		
@@ -45,7 +49,7 @@ public class SQLUtilitiesTest {
 	public void testInsertPlayerByName() {
 		SQLUtilities util = new SQLUtilities();
 		
-		String name = "xy";
+		String name = TEST_NAME;
 		
 		util.insertPlayerByName(name);
 		
@@ -59,7 +63,7 @@ public class SQLUtilitiesTest {
 		Player x = new Player();
 		
 		x.player_id = 100;
-		x.name = "joe";
+		x.name = "joe 3";
 		
 		util.insertPlayer(x);
 		
@@ -70,11 +74,11 @@ public class SQLUtilitiesTest {
 	public void testGetPlayerId() {
 		SQLUtilities util = new SQLUtilities();
 		
-		String name = "xy";
+		String name = TEST_NAME;
 		
-		int returned = util.getPlayerId(name);
+		int returned = util.getPlayerID(name);
 		
-		assertEquals(1, returned);
+		assertEquals(101, returned);
 	}
 	
 	@Test
@@ -83,7 +87,7 @@ public class SQLUtilitiesTest {
 		
 		String name = "yyz";
 		
-		int returned = util.getPlayerId(name);
+		int returned = util.getPlayerID(name);
 		
 		assertEquals(-1, returned);
 	}
@@ -92,21 +96,32 @@ public class SQLUtilitiesTest {
 	public void testGetNameFromAlias() {
 		SQLUtilities util = new SQLUtilities();
 		
-		String name = "yz";
+		String name = TEST_ALIAS;
 		
 		String returned = util.getNameFromAlias(name);
 		
-		assertEquals("xy", returned);
+		assertEquals(TEST_NAME, returned);
 	}
 	
 	@Test
 	public void testGetIdFromAlias() {
 		SQLUtilities util = new SQLUtilities();
 		
-		String name = "yz";
+		String name = TEST_ALIAS;
 		
 		int returned = util.getIDFromAlias(name);
 		
-		assertEquals(1, returned);
+		assertEquals(101, returned);
+	}
+	
+	@Test
+	public void testGetIDFromName() {
+		SQLUtilities util = new SQLUtilities();
+		
+		String name = TEST_NAME;
+		
+		int returned = util.getPlayerID(name);
+		
+		assertEquals(101, returned);
 	}
 }

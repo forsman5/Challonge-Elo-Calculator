@@ -95,7 +95,7 @@ public class Alias {
 			String alias = line.substring(line.indexOf(':') + 1, line.indexOf('\n'));
 			
 			//get the id for the name from the database.
-			int pId = sql.getPlayerId(name);
+			int pId = sql.getPlayerID(name);
 			
 			//if this player exists
 			if (pId == -1) {

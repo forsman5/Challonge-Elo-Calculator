@@ -39,7 +39,6 @@ public class SQLUtilities {
 			conn = DriverManager.getConnection(connectionString);
 		} catch (SQLException e) {
 			e.printStackTrace();
-			//TODO
 		}
 		
 		return conn;
@@ -96,7 +95,6 @@ public class SQLUtilities {
 			cs.executeQuery();
 			
 		} catch (SQLException e) {
-			//TODO
 			e.printStackTrace();
 		}
 	}
@@ -127,7 +125,6 @@ public class SQLUtilities {
 			cs.executeQuery();
 			
 		} catch (SQLException e) {
-			//TODO
 			e.printStackTrace();
 		}
 		
@@ -147,7 +144,6 @@ public class SQLUtilities {
 			cs.executeQuery();
 			
 		} catch (SQLException e) {
-			//TODO
 			e.printStackTrace();
 		}
 	}
@@ -157,7 +153,7 @@ public class SQLUtilities {
 	 * 
 	 * If no id is attached to this name, returns -1;
 	 */
-	public int getPlayerId(String name) {
+	public int getPlayerID(String name) {
 		int toReturn = -1;
 		
 		try {
@@ -202,7 +198,6 @@ public class SQLUtilities {
 			cs.executeQuery();
 			
 		} catch (SQLException e) {
-			//TODO
 			e.printStackTrace();
 		}
 	}
@@ -213,13 +208,13 @@ public class SQLUtilities {
 	 * Returns -1 if this ID is never found
 	 */
 	public int getIDFromAlias(String name) {
-		int id = getPlayerId(name);
+		int id = getPlayerID(name);
 		
 		if (id == -1) {
 			String trueName = getNameFromAlias(name); //query the alias database for the name attached to this
 			
-			if (!trueName.equals("null")) {
-				id = getPlayerId(trueName);
+			if (!Constants.isNull(trueName)) {
+				id = getPlayerID(trueName);
 			}
 			
 			//else do nothing, id remains -1

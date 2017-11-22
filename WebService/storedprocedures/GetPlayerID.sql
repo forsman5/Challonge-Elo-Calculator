@@ -3,7 +3,7 @@ DELIMITER //
 CREATE PROCEDURE GetPlayerID
 (
 IN in_name VARCHAR(255),
-OUT latest DATE
+OUT out_id VARCHAR(255)
 )
 BEGIN
 SELECT player_id FROM players WHERE name = in_name;

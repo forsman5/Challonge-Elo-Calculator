@@ -3,9 +3,9 @@ DELIMITER //
 CREATE PROCEDURE GetNameFromAlias
 (
 IN in_name VARCHAR(255),
-OUT latest DATE
+OUT out_name VARCHAR(255)
 )
 BEGIN
-SELECT name FROM aliases WHERE alias = in_name LIMIT 1;
+SELECT name FROM aliases WHERE alias = in_name;
 END //
 DELIMITER ;
