@@ -4,6 +4,7 @@ import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 
 /*
  * Class to mock the jdbc driver, and to connect to the mysql implementation.
@@ -88,9 +89,17 @@ public class SQLUtilities {
 		try {
 			CallableStatement cs = conn.prepareCall("{call InsertTournament(?, ?, ?, ?)}");
 			
+			SimpleDateFormat textFormat = new SimpleDateFormat("yyyy-MM-dd");
+			
 			//set parameters
 			cs.setInt(1, x.id);
-			cs.setDate(2, java.sql.Date.valueOf(x.dateStarted));
+			
+			try {
+				cs.setDate(2, new java.sql.Date(textFormat.parse(x.dateStarted).getTime()));
+			} catch (java.text.ParseException e) {
+				e.printStackTrace();
+			}
+					
 			cs.setString(3, x.name);
 			cs.setString(4, x.link);
 			
