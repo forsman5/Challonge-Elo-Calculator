@@ -56,9 +56,7 @@ public class SQLUtilities {
 		Date out = null;
 		
 		try {
-			CallableStatement cs = conn.prepareCall("{call GetLatestTourneyDate(?)}");
-			cs.registerOutParameter(1, Types.DATE);
-			cs.setDate(1, out);
+			CallableStatement cs = conn.prepareCall("{call GetLatestTourneyDate()}");
 			
 			ResultSet rs = cs.executeQuery();
 			
@@ -106,10 +104,8 @@ public class SQLUtilities {
 		String toReturn = "null";
 		
 		try {
-			CallableStatement cs = conn.prepareCall("{call GetPlayerID(?, ?)}");
+			CallableStatement cs = conn.prepareCall("{call GetPlayerID(?)}");
 			cs.setInt(1, id);
-			cs.registerOutParameter(2, Types.VARCHAR);
-			cs.setString(2, toReturn);
 			
 			ResultSet rs = cs.executeQuery();
 			
@@ -176,10 +172,8 @@ public class SQLUtilities {
 		int toReturn = -1;
 		
 		try {
-			CallableStatement cs = conn.prepareCall("{call GetPlayerID(?, ?)}");
+			CallableStatement cs = conn.prepareCall("{call GetPlayerID(?)}");
 			cs.setString(1, name);
-			cs.registerOutParameter(2, Types.INTEGER);
-			cs.setInt(2, toReturn);
 			
 			ResultSet rs = cs.executeQuery();
 			
@@ -253,10 +247,8 @@ public class SQLUtilities {
 		String toReturn = "null";
 		
 		try {
-			CallableStatement cs = conn.prepareCall("{call GetNameFromAlias(?, ?)}");
+			CallableStatement cs = conn.prepareCall("{call GetNameFromAlias(?)}");
 			cs.setString(1, alias);
-			cs.registerOutParameter(2, Types.VARCHAR);
-			cs.setString(2, toReturn);
 			
 			ResultSet rs = cs.executeQuery();
 			
