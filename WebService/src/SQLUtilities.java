@@ -268,4 +268,19 @@ public class SQLUtilities {
 		
 		return toReturn;
 	}
+	
+	/*
+	 * Wipes and recreates all tables.
+	 * 
+	 * WARNING - ALL DATA WILL BE LOST
+	 */
+	public void wipeTables() {		
+		try {
+			CallableStatement cs = conn.prepareCall("{call CreateTables()}");
+			
+			cs.executeQuery();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
 }

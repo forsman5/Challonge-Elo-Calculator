@@ -49,9 +49,9 @@ public class Alias {
 				BufferedWriter writer = new BufferedWriter(fw);
 
 				writer.write(a.name + ":" + a.alias + "\n");
-				
-				fw.close();
+
 				writer.close();
+				fw.close();
 			} catch (IOException e) {
 				//should not occur...
 				e.printStackTrace();
@@ -92,7 +92,7 @@ public class Alias {
 			
 			//cut line into pieces
 			String name = line.substring(0, line.indexOf(':'));
-			String alias = line.substring(line.indexOf(':') + 1, line.indexOf('\n'));
+			String alias = line.substring(line.indexOf(':') + 1);
 			
 			//get the id for the name from the database.
 			int pId = sql.getPlayerID(name);
@@ -102,16 +102,17 @@ public class Alias {
 				//create new player record, and save it to the database.
 				
 				sql.insertPlayerByName(name);
-			} else {
-				//create an object 
-				AliasRecord x = new AliasRecord();
-				
-				x.alias = alias;
-				x.name = name;
-				
-				//add to list
-				toReturn.add(x);
 			}
+			
+			//create an object 
+			AliasRecord x = new AliasRecord();
+			
+			x.alias = alias;
+			x.name = name;
+			
+			//add to list
+			toReturn.add(x);
+			
 		}
 		
 		//close the file
