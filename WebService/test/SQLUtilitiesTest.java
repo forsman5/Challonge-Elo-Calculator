@@ -133,4 +133,13 @@ public class SQLUtilitiesTest {
 		
 		assertEquals(1, returned);
 	}
+	
+	@Test
+	public void testWipeTables() {
+		SQLUtilities sql = new SQLUtilities();
+		
+		sql.wipeTables();
+		
+		assertTrue(true);
+	}
 }
