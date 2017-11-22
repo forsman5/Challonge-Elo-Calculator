@@ -103,8 +103,27 @@ public class SQLUtilities {
 	 * Gets the player name associated with this ID
 	 */
 	public String getPlayerName(int id) {
-		// TODO Auto-generated method stub
-		return null;
+		String toReturn = "null";
+		
+		try {
+			CallableStatement cs = conn.prepareCall("{call GetPlayerID(?, ?)}");
+			cs.setInt(1, id);
+			cs.registerOutParameter(2, Types.VARCHAR);
+			cs.setString(2, toReturn);
+			
+			ResultSet rs = cs.executeQuery();
+			
+			if (rs.next()) {
+				toReturn = rs.getString(1);
+			}
+			
+			//else, toReturn already initialized to -1
+		} catch (SQLException e) {
+			//should be caught by next
+			e.printStackTrace();
+		}
+		
+		return toReturn;
 	}
 
 	/*

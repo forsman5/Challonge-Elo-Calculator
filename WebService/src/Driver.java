@@ -280,7 +280,7 @@ public class Driver {
 			//throws an exception if an integer or empty string is encountered... not sure why
 			String gameIdString = j.get("game_id").toString();
 			
-			if (isNull(gameIdString) || Integer.parseInt(gameIdString) != Constants.GAME_ID) {
+			if (Constants.isNull(gameIdString) || Integer.parseInt(gameIdString) != Constants.GAME_ID) {
 				toRemove.add(j);
 			}
 		}
@@ -321,17 +321,5 @@ public class Driver {
 		} // else, return null
 		
 		return json;
-	}
-	
-	/*
-	 * checks if a string is essentially null
-	 */
-	private static boolean isNull(String in) {
-		boolean toReturn = false;
-		
-		if (in == null || in.isEmpty() || in.trim().isEmpty() || in.equals("null")) 
-			toReturn = true;
-		
-		return toReturn;
 	}
 }

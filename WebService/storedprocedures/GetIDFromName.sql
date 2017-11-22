@@ -1,0 +1,11 @@
+DROP PROCEDURE IF EXISTS GetIDFromName;
+DELIMITER //
+CREATE PROCEDURE GetIDFromName
+(
+IN in_ID INT,
+OUT out_name VARCHAR(255)
+)
+BEGIN
+SELECT name FROM players WHERE player_id = in_ID;
+END //
+DELIMITER ;

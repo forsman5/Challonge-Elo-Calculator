@@ -76,4 +76,21 @@ final class Constants {
 	 * This is set because, often, someone would be subbed in, mid bracket. These results are being discarded.
 	 */
 	public final static boolean ALLOW_SLASHES = false;
+	
+	/*
+	 * checks if a string is essentially null
+	 * 
+	 * Placed in the constants file as it is a utility method.
+	 * 
+	 * TODO
+	 * should be moved later
+	 */
+	public static boolean isNull(String in) {
+		boolean toReturn = false;
+		
+		if (in == null || in.isEmpty() || in.trim().isEmpty() || in.equals("null")) 
+			toReturn = true;
+		
+		return toReturn;
+	}
 }
