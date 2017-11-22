@@ -1,7 +1,5 @@
 import java.io.IOException;
-import java.text.DateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 
 import okhttp3.*;
 import org.json.*;
@@ -34,21 +32,18 @@ public class Driver {
 		}
 		
 		for (Tournament t : tournies) {
-			//save every new tournament
-			util.insertTournament(t);
-			
 			//get and process players
 			ArrayList<Player> players = getPlayers(t.id);
 			
 			//get placings
-			for (Player p : players) {
+			//for (Player p : players) {
 				//if (p.currId != -1) {
 				//savePlacing (p.currId, t)
 				//else savePlacing (p.id, t);
-			}
+			//}
 			
 			//debugging
-			System.out.println(t.name);
+			//System.out.println(t.name);
 			
 			//get and process matches 
 		}
@@ -62,8 +57,13 @@ public class Driver {
 	 * Returns an ArrayList of Tournament objects. This list contains every relevant tournament object.
 	 * 
 	 * if an error occurs, returns null. Else, will return an arraylist of at least size 0.
+	 * 
+	 * All new tournaments that are returned are automatically saved to the database.
 	 */
 	public static ArrayList<Tournament> getTournaments(String createdAfter) {
+		//for inserting the new tournaments
+		SQLUtilities sql = new SQLUtilities();
+		
 		//for most tournaments
 		String reqUrl = "https://api.challonge.com/v1/tournaments.json?state=ended&api_key=" + Constants.API_KEY + "&created_after="+createdAfter;
 		
@@ -101,6 +101,9 @@ public class Driver {
 			toAdd.id = j.getInt("id");
 			
 			toReturn.add(toAdd);
+
+			//save every new tournament
+			sql.insertTournament(toAdd);
 		}
 		
 		//return a set full of tournament objects
@@ -133,6 +136,8 @@ public class Driver {
 			int id = j.getInt("id");
 			String name = j.getString("name");
 			
+			name = sanitizeName(name);
+			
 			int returned = sql.getIDFromAlias(name);
 			if (returned == -1) {
 				//create new record
@@ -153,6 +158,26 @@ public class Driver {
 		}
 		
 		return toReturn;
+	}
+
+	/*
+	 * Convert the given name to fit requirements.
+	 * 
+	 * For example, all '+' are changed to 'and'
+	 * 
+	 * Removes all sponsor tags.
+	 */
+	private static String sanitizeName(String name) {
+		if (name.indexOf('|') != -1) {
+			//remove sponsor tag
+			name = name.substring(name.indexOf('|') + 1);
+		}
+		
+		if (name.indexOf('+') != -1) {
+			name = name.substring(0, name.indexOf('+')).trim() + " and " + name.substring(name.indexOf('+') + 1).trim();
+		}
+		
+		return name.trim();
 	}
 
 	private static void filterPlayers(ArrayList<JSONObject> json) {
@@ -289,6 +314,15 @@ public class Driver {
 		for (JSONObject i : toRemove) {
 			arr.remove(i);
 		}
+	}
+	
+	/*
+	 * Removes any unwanted matches.
+	 * 
+	 * Removes any matches score 0-0, or disqualifications (one player scored -1);
+	 */
+	private static void filterMatches(ArrayList<JSONObject> arr) {
+		//TODO
 	}
 	
 	/*
