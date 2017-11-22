@@ -230,8 +230,32 @@ public class SQLUtilities {
 		return id;
 	}
 
-	public String getNameFromAlias(String name) {
-		// TODO Auto-generated method stub
-		return null;
+	/*
+	 * Get the first name associated with the given alias in the database.
+	 * 
+	 * Returns "null" if nothing found.
+	 */
+	public String getNameFromAlias(String alias) {
+		String toReturn = "null";
+		
+		try {
+			CallableStatement cs = conn.prepareCall("{call GetNameFromAlias(?, ?)}");
+			cs.setString(1, alias);
+			cs.registerOutParameter(2, Types.VARCHAR);
+			cs.setString(2, toReturn);
+			
+			ResultSet rs = cs.executeQuery();
+			
+			if (rs.next()) {
+				toReturn = rs.getString(1);
+			}
+			
+			//else, toReturn already initialized to -1
+		} catch (SQLException e) {
+			//should be caught by next
+			e.printStackTrace();
+		}
+		
+		return toReturn;
 	}
 }

@@ -87,4 +87,26 @@ public class SQLUtilitiesTest {
 		
 		assertEquals(-1, returned);
 	}
+	
+	@Test
+	public void testGetNameFromAlias() {
+		SQLUtilities util = new SQLUtilities();
+		
+		String name = "yz";
+		
+		String returned = util.getNameFromAlias(name);
+		
+		assertEquals("xy", returned);
+	}
+	
+	@Test
+	public void testGetIdFromAlias() {
+		SQLUtilities util = new SQLUtilities();
+		
+		String name = "yz";
+		
+		int returned = util.getIDFromAlias(name);
+		
+		assertEquals(1, returned);
+	}
 }

@@ -7,7 +7,7 @@ CREATE TABLE aliases
 (
   alias_id        int unsigned NOT NULL auto_increment,
   name      	 varchar(255) NOT NULL,
-  alias			  varchar(255) NOT NULL,
+  alias			  varchar(255) NOT NULL UNIQUE,
   
   PRIMARY KEY     (alias_id)
 );
