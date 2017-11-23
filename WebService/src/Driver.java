@@ -42,46 +42,9 @@ public class Driver {
 			//get and process matches 
 			ArrayList<Match> matches = getMatches(t.id);
 			
-			//must reconcile all matches using a curr_id to use the proper player_id
-			//all matches with at least one id that does not exist in the player_id table 
-			//   (ie - a spacer) must be filtered out
-			ArrayList<Match> toRemove = new ArrayList<Match>();
+			processMatches(matches, players, util);
 			
-			for (Match m : matches) {
-				//for optimization..
-				boolean winnerFound = false;
-				boolean loserFound = false;
-				
-				for (Player p : players) {	
-					//compare to the matches id's
-					if (!loserFound && (m.loser_id == p.curr_id || m.loser_id == p.group_id)) {
-						m.loser_id = p.player_id;
-						loserFound = true;
-					}
-					
-					if (!winnerFound && (m.winner_id == p.curr_id || m.winner_id == p.group_id)) {
-						m.winner_id = p.player_id;
-						winnerFound = true;
-					}
-					
-					if (winnerFound && loserFound) {
-						break;
-					}
-				}
-				
-				//do both of these id's exist in the database
-				if (util.getPlayerName(m.winner_id).equals("null") || util.getPlayerName(m.loser_id).equals("null")) {
-					//no
-					toRemove.add(m);
-				}
-			}
-			
-			//removing bad matches
-			for (Match r : toRemove) {
-				matches.remove(r);
-			}
-			
-			//saving the rest
+			//saving any not filtered out
 			for (Match m : matches) {
 				util.insertMatch(m);
 			}
@@ -269,6 +232,77 @@ public class Driver {
 	}
 
 	/*
+	 * Process all matches and their results.
+	 * 
+	 * Carries out all elo calculations and filters the given match set to ensure that only viable matches are saved.
+	 * 
+	 * the given set of matches and players should be every match and player (after filtering) from a given tournament.
+	 * 
+	 * sql param is needed to save elo updates to the db.
+	 */
+	private static void processMatches(ArrayList<Match> matches, ArrayList<Player> players, SQLUtilities sql) {
+		//must reconcile all matches using a curr_id to use the proper player_id
+		//all matches with at least one id that does not exist in the player_id table 
+		//   (ie - a spacer) must be filtered out
+		ArrayList<Match> toRemove = new ArrayList<Match>();
+		
+		for (Match m : matches) {
+			//for optimization..
+			boolean winnerFound = false;
+			boolean loserFound = false;
+			
+			int index = 0;
+			while ((!winnerFound || !loserFound) && index < players.size()) {
+				Player p = players.get(index);
+				
+				//compare to the matches id's
+				if (!loserFound && (m.loser_id == p.curr_id || m.loser_id == p.group_id)) {
+					m.loser_id = p.player_id;
+					loserFound = true;
+				}
+				
+				if (!winnerFound && (m.winner_id == p.curr_id || m.winner_id == p.group_id)) {
+					m.winner_id = p.player_id;
+					winnerFound = true;
+				}
+				
+				index++;
+			}
+			
+			//ensure that both participants exist in the database
+			if (!winnerFound || !loserFound) {
+				toRemove.add(m);
+			} else {
+				//valid match - perform elo calc
+				int eloW = sql.getElo(m.winner_id);
+				int eloL = sql.getElo(m.loser_id);
+				
+				int elos[] = calcNewElo(eloW, eloL, m.winner_score, m.loser_score);
+				
+				sql.setElo(m.winner_id, elos[0]);
+				sql.setElo(m.loser_id, elos[1]);
+			}
+		}
+		
+		//removing bad matches
+		for (Match r : toRemove) {
+			matches.remove(r);
+		}
+		
+	}
+	
+	/*
+	 * Given the elo and score of the winner and loser of a match,
+	 * calculates the new elo value of both players, and returns them in an arry.
+	 * 
+	 * Element 0 in returned array is the updated elo score of the winner, and Element 0 is the updated elo score of the loser.
+	 */
+	private static int[] calcNewElo(int eloW, int eloL, int winner_score, int loser_score) {
+		// TODO Auto-generated method stub
+		return new int[] {eloW, eloL};
+	}
+
+	/*
 	 * Convert the given name to fit requirements.
 	 * 
 	 * For example, all '+' are changed to 'and'
@@ -393,27 +427,6 @@ public class Driver {
 		
 		return toReturn;
 	}
-	
-	/*
-	 * Ensures that an HTTP response works. If not, returns false. If 200 OK, returns true
-	 * 
-	 * If returns false, will also log the error
-	 */
-	private static boolean ensureSuccess(Response rsp) {
-		//check to make sure both returned with 200 OK, if not, do something -- exception, logging, send an email...
-		
-		boolean toReturn = true;
-		
-		//if bad,
-		//TODO
-		if (false) {
-			//handleBadResponse(rsp);
-			//log the response here
-			toReturn = false;
-		}
-		
-		return toReturn;
-	}
 
 	/*
 	 * Removes any objects in the array list that do not match a set of criteria
@@ -515,7 +528,7 @@ public class Driver {
 		}
 		
 		//check for failure
-		if (ensureSuccess(response)) {
+		if (response.isSuccessful()) {
 			json = getJson(response);
 		} // else, return null
 		
