@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import okhttp3.*;
 import org.json.*;
 
+//TODO
+//WHY IS CALEB F SO LOW
+
 /**
  * This is the main driver file for the webservice.
  * 
@@ -297,9 +300,37 @@ public class Driver {
 	 * 
 	 * Element 0 in returned array is the updated elo score of the winner, and Element 0 is the updated elo score of the loser.
 	 */
-	private static int[] calcNewElo(int eloW, int eloL, int winner_score, int loser_score) {
-		// TODO Auto-generated method stub
-		return new int[] {eloW, eloL};
+	private static int[] calcNewElo(int eloW, int eloL, int wScore, int lScore) {
+		//transform the ratings
+		double onePrime = Math.pow(10, eloW/400);
+		double twoPrime = Math.pow(10, eloL/400);
+		
+		double expected1 = onePrime / (onePrime + twoPrime);
+		double expected2 = twoPrime / (onePrime + twoPrime);
+		
+		double simpleScore1;
+		double simpleScore2;
+		
+		//TODO
+		//add accounting for the margin of the win??
+		if (wScore > lScore) {
+			simpleScore1 = 1;
+			simpleScore2 = 0;
+		} else if (wScore == lScore) {
+			simpleScore1 = 0;
+			simpleScore2 = 1;
+		} else {
+			//draw
+			simpleScore1 = .5;
+			simpleScore2 = .5;
+		}
+		
+		int[] toReturn = new int[] {0,0};
+		
+		toReturn[0] = (int) Math.round(eloW + Constants.KFACTOR * (simpleScore1 - expected1));
+		toReturn[1] = (int) Math.round(eloL + Constants.KFACTOR * (simpleScore2 - expected2));
+		
+		return toReturn;
 	}
 
 	/*

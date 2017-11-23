@@ -84,6 +84,13 @@ final class Constants {
 	public final static String[] DISCARD_FLAGS = {"Spacer", "Chad + Sahil + Carson", "CPU"};
 	
 	/*
+	 * Factor by which to multiply elo changes by. Larger numbers mean more drastic changes.
+	 * 
+	 * International chess competition uses a K-Factor of 32.
+	 */
+	public final static int KFACTOR = 64;
+	
+	/*
 	 * checks if a string is essentially null
 	 * 
 	 * Placed in the constants file as it is a utility method.
