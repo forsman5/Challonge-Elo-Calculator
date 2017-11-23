@@ -370,4 +370,20 @@ public class SQLUtilities {
 		
 		return toReturn;
 	}
+	
+	/*
+	 * Record the elo value associated with this player_id
+	 */
+	public void setElo(int id, int newElo) {
+		try {
+			CallableStatement cs = conn.prepareCall("{call SetElo(?, ?)}");
+			cs.setInt(1, id);
+			cs.setInt(2, newElo);
+			
+			cs.executeQuery();
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
 }
