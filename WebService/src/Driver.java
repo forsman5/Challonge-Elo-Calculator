@@ -36,12 +36,101 @@ public class Driver {
 			ArrayList<Player> players = getPlayers(t.id);
 			
 			for (Player p : players) {
-				util.savePlacing(p.player_id, t.id, p.final_placing);
+				util.insertPlacing(p.player_id, t.id, p.final_placing);
 			}
 			
 			//get and process matches 
+			ArrayList<Match> matches = getMatches(t.id);
+			
+			//must reconcile all matches using a curr_id to use the proper player_id
+			//all matches with at least one id that does not exist in the player_id table 
+			//   (ie - a spacer) must be filtered out
+			ArrayList<Match> toRemove = new ArrayList<Match>();
+			
+			for (Match m : matches) {
+				//for optimization..
+				boolean winnerFound = false;
+				boolean loserFound = false;
+				
+				for (Player p : players) {	
+					//compare to the matches id's
+					if (!loserFound && (m.loser_id == p.curr_id || m.loser_id == p.group_id)) {
+						m.loser_id = p.player_id;
+						loserFound = true;
+					}
+					
+					if (!winnerFound && (m.winner_id == p.curr_id || m.winner_id == p.group_id)) {
+						m.winner_id = p.player_id;
+						winnerFound = true;
+					}
+					
+					if (winnerFound && loserFound) {
+						break;
+					}
+				}
+				
+				//do both of these id's exist in the database
+				if (util.getPlayerName(m.winner_id).equals("null") || util.getPlayerName(m.loser_id).equals("null")) {
+					//no
+					toRemove.add(m);
+				}
+			}
+			
+			//removing bad matches
+			for (Match r : toRemove) {
+				matches.remove(r);
+			}
+			
+			//saving the rest
+			for (Match m : matches) {
+				util.insertMatch(m);
+			}
 		}
 	}	
+
+	/*
+	 * Returns an array of all matches played in the provided tourney id.
+	 * 
+	 * Disqualifications are filtered out (as are matches scored 0-0).
+	 * 
+	 * Nothing is saved - this must be done with the array of players.
+	 */
+	public static ArrayList<Match> getMatches(int id) {
+		//sql driver for finding the true player_id (matching records)
+		
+		String url = "https://api.challonge.com/v1/tournaments/"+id+"/matches.json?api_key="+Constants.API_KEY;
+		ArrayList<JSONObject> json = executeRequest(url);
+		
+		filterMatches(json);
+		
+		ArrayList<Match> toReturn = new ArrayList<>();
+		
+		for (JSONObject j : json) {
+			Match toAdd = new Match();
+			
+			//fill the match object out
+			toAdd.match_id = j.getInt("id");
+			toAdd.tourney_id = id;
+			
+			int scores[] = getScores(j.getString("scores_csv"));
+			
+			toAdd.winner_id = j.getInt("winner_id");
+			toAdd.loser_id = j.getInt("loser_id");
+			
+			if (scores[0] > scores[1]) {
+				toAdd.winner_score = scores[0];
+				toAdd.loser_score = scores[1];
+			} else {
+				//ties are handled here...
+				toAdd.loser_score = scores[0];
+				toAdd.winner_score = scores[1];
+			}
+					
+			toReturn.add(toAdd);
+		}
+		
+		return toReturn;
+	}
 
 	/*
 	 * Request all the tournaments for the account set as the API_KEY in constants.java.
@@ -130,6 +219,14 @@ public class Driver {
 			int id = j.getInt("id");
 			String name = j.getString("name");
 			
+			//getting group id
+			JSONArray group_player_ids = j.getJSONArray("group_player_ids");
+			if (group_player_ids.length() != 0) {
+				toAdd.group_id = (Integer) group_player_ids.get(0);
+			} else {
+				toAdd.group_id = -1;
+			}
+			
 			name = sanitizeName(name);
 			
 			int returned = sql.getIDFromAlias(name);
@@ -144,7 +241,7 @@ public class Driver {
 				toAdd.player_id = returned;
 				
 				//getting from database
-				toAdd.name = sql.getPlayerName(id);
+				toAdd.name = sql.getPlayerName(returned);
 			}
 			
 			toAdd.curr_id = id;
@@ -152,8 +249,6 @@ public class Driver {
 			
 			if (Constants.isNull(temp.toString())) {
 				//did not advance out of the group stage
-				//DECIDE HOW TO HANDLE THIS
-				//TODO
 				/*
 				 * Get seed, as this is seed going into the final round (or result out of the group stage)
 				 * 
@@ -353,9 +448,47 @@ public class Driver {
 		// if either of the players do not exist in the database, do not log this entry
 		// this means that one of players was filtered out
 		
-		//TODO
+		ArrayList<JSONObject> toRemove = new ArrayList<JSONObject>();
+		
+		for (JSONObject j : arr) {
+			String scoreString = j.getString("scores_csv");
+
+			int scores[] = getScores(scoreString);
+			
+			if (scores[0] == 0 && scores[1] == 0) {
+				toRemove.add(j);
+			} else if (scores[0] < 0 || scores[1] < 0) {
+				//disqualification
+				toRemove.add(j);
+			}
+		}
+		
+		for (JSONObject j : toRemove) {
+			arr.remove(j);
+		}
 	}
 	
+	private static int[] getScores(String scores) {
+		int[] toReturn = new int[] {0, 0};
+		
+		int commaIndex;
+		
+		do {
+			commaIndex = scores.indexOf(',');
+			
+			//start searching after the first value -- if the first index is  a '-', it just means the first number is a negative
+			toReturn[0] += Integer.parseInt(scores.substring(0, scores.indexOf('-', 1)));
+			toReturn[1] += Integer.parseInt(scores.substring(scores.indexOf('-', 1) + 1, (commaIndex == -1 ? scores.length() : commaIndex)));
+			
+			if (commaIndex != -1) {
+				//move scores string forward
+				scores = scores.substring(commaIndex + 1);
+			}
+		} while (commaIndex != -1);
+		
+		return toReturn;
+	}
+
 	/*
 	 * Given a string, create a request, execute the request, ensure the response is valid, and then return the set of JSONObjects
 	 * returned by the HTTP request.

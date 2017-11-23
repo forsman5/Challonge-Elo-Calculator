@@ -20,6 +20,9 @@ public class Player {
 	//THIS DOES NOT GET SAVED
 	public int curr_id;
 	
+	//different id for matches in pools..
+	public int group_id;
+	
 	//elo starts at 1000
 	public Player() {
 		elo = 1000;

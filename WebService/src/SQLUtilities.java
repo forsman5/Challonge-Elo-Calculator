@@ -129,7 +129,7 @@ public class SQLUtilities {
 		String toReturn = "null";
 		
 		try {
-			CallableStatement cs = conn.prepareCall("{call GetPlayerID(?)}");
+			CallableStatement cs = conn.prepareCall("{call GetPlayerName(?)}");
 			cs.setInt(1, id);
 			
 			ResultSet rs = cs.executeQuery();
@@ -305,7 +305,7 @@ public class SQLUtilities {
 		}
 	}
 
-	public void savePlacing(int player_id, int t_id, int final_placing) {
+	public void insertPlacing(int player_id, int t_id, int final_placing) {
 		try {
 			CallableStatement cs = conn.prepareCall("{call InsertPlacing(?, ?, ?)}");
 			
@@ -313,6 +313,25 @@ public class SQLUtilities {
 			cs.setInt(1, player_id);
 			cs.setInt(2, t_id);
 			cs.setInt(3, final_placing);
+			
+			cs.executeQuery();
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void insertMatch(Match m) {
+		try {
+			CallableStatement cs = conn.prepareCall("{call InsertMatch(?, ?, ?, ?, ?, ?)}");
+			
+			//set parameters
+			cs.setInt(1, m.match_id);
+			cs.setInt(2, m.winner_id);
+			cs.setInt(3, m.loser_id);
+			cs.setInt(4, m.winner_score);
+			cs.setInt(5, m.loser_score);
+			cs.setInt(6, m.tourney_id);
 			
 			cs.executeQuery();
 			
