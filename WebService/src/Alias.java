@@ -14,7 +14,7 @@ public class Alias {
 	/*
 	 * Private wrapper class to save aliases to the database.
 	 */
-	private static class AliasRecord { // TODO is static going to work here ?? 
+	private static class AliasRecord {
 		public String alias;
 		public String name;
 		

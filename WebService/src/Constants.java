@@ -94,9 +94,6 @@ final class Constants {
 	 * checks if a string is essentially null
 	 * 
 	 * Placed in the constants file as it is a utility method.
-	 * 
-	 * TODO
-	 * should be moved later
 	 */
 	public static boolean isNull(String in) {
 		boolean toReturn = false;

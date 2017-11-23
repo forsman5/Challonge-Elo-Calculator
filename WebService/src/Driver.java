@@ -4,9 +4,6 @@ import java.util.ArrayList;
 import okhttp3.*;
 import org.json.*;
 
-//TODO
-//WHY IS CALEB F SO LOW
-
 /**
  * This is the main driver file for the webservice.
  * 
