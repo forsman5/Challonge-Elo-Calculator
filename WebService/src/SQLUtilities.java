@@ -304,7 +304,10 @@ public class SQLUtilities {
 			e.printStackTrace();
 		}
 	}
-
+	
+	/*
+	 * Create a new placing record in the database.
+	 */
 	public void insertPlacing(int player_id, int t_id, int final_placing) {
 		try {
 			CallableStatement cs = conn.prepareCall("{call InsertPlacing(?, ?, ?)}");
@@ -321,6 +324,9 @@ public class SQLUtilities {
 		}
 	}
 
+	/*
+	 * Create a new match record in the database.
+	 */
 	public void insertMatch(Match m) {
 		try {
 			CallableStatement cs = conn.prepareCall("{call InsertMatch(?, ?, ?, ?, ?, ?)}");
@@ -338,5 +344,30 @@ public class SQLUtilities {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+	}
+
+	/*
+	 * Record the elo value associated with this player_id
+	 */
+	public int getElo(int id) {
+		int toReturn = -1;
+		
+		try {
+			CallableStatement cs = conn.prepareCall("{call GetElo(?)}");
+			cs.setInt(1, id);
+			
+			ResultSet rs = cs.executeQuery();
+			
+			if (rs.next()) {
+				toReturn = rs.getInt(1);
+			}
+			
+			//else, toReturn already initialized to -1
+		} catch (SQLException e) {
+			//should be caught by next
+			e.printStackTrace();
+		}
+		
+		return toReturn;
 	}
 }

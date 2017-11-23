@@ -1,0 +1,10 @@
+DROP PROCEDURE IF EXISTS GetElo;
+DELIMITER //
+CREATE PROCEDURE GetElo
+(
+IN in_id INT
+)
+BEGIN
+SELECT elo FROM players WHERE player_id = in_id;
+END //
+DELIMITER ;

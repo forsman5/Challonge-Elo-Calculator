@@ -11,3 +11,4 @@ mysql -h "localhost" -u "root" "-padmin" "powellsmashdb" < "InsertPlayerName.sql
 mysql -h "localhost" -u "root" "-padmin" "powellsmashdb" < "InsertPlacing.sql"
 mysql -h "localhost" -u "root" "-padmin" "powellsmashdb" < "InsertMatch.sql"
 mysql -h "localhost" -u "root" "-padmin" "powellsmashdb" < "GetPlayerName.sql"
+mysql -h "localhost" -u "root" "-padmin" "powellsmashdb" < "GetElo.sql"

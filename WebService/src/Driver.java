@@ -242,6 +242,7 @@ public class Driver {
 				
 				//getting from database
 				toAdd.name = sql.getPlayerName(returned);
+				toAdd.elo = sql.getElo(returned);
 			}
 			
 			toAdd.curr_id = id;
