@@ -7,7 +7,5 @@ public class Match {
 	public int loser_id;
 	public int loser_score;
 	public int winner_score;
-	
-	//? TODO
-	public String round_title;
+	public int tourney_id;
 }

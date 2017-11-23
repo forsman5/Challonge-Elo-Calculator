@@ -142,4 +142,32 @@ public class SQLUtilitiesTest {
 		
 		assertTrue(true);
 	}
+	
+	@Test
+	public void testInsertMatch() {
+		SQLUtilities sql = new SQLUtilities();
+		
+		Match m = new Match();
+		m.winner_id = 1;
+		m.loser_id = 2;
+		m.match_id = 1;
+		m.winner_score = 5;
+		m.loser_score = 3;
+		m.tourney_id = 180727;
+		
+		sql.insertMatch(m);
+		
+		assertTrue(true);
+	}
+	
+	@Test
+	public void testGetNameFromID() {
+		SQLUtilities util = new SQLUtilities();
+		
+		int id = 19;
+		
+		String returned = util.getPlayerName(id);
+		
+		assertEquals("Sahil K", returned);
+	}
 }
