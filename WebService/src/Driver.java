@@ -414,6 +414,12 @@ public class Driver {
 			body = response.body().string();
 			body= body.substring(1, body.length() - 1); //cut out first and final []
 		} catch (IOException e) {
+			String message = Utility.getBody("getJson", e);
+			String subject = "Error occured in Challonge Elo Parser application!";
+			
+			Utility.sendEmail(Constants.ERROR_ALERT_DESTINATION, Constants.ERROR_ALERT_ORIGINATION, subject, message);
+			
+			//remove for production
 			e.printStackTrace();
 		}
 		
@@ -551,6 +557,12 @@ public class Driver {
 		try {
 			response = client.newCall(request).execute();
 		} catch (IOException e) {
+			String message = Utility.getBody("executeRequest", e, "Probable cause: Bad request."); // TODO -- include the request in the 3rd param
+			String subject = "Error occured in Challonge Elo Parser application!";
+			
+			Utility.sendEmail(Constants.ERROR_ALERT_DESTINATION, Constants.ERROR_ALERT_ORIGINATION, subject, message);
+			
+			//remove for production
 			//bad request
 			e.printStackTrace();
 		}

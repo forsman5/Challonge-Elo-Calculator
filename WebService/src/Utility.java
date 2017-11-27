@@ -4,6 +4,8 @@ import javax.mail.internet.*;
 
 /*
  * Basic utility class to contain static methods to be used across the codebase.
+ * 
+ * TODO: When placing into production, remove all printStackTrace exception handling
  */
 public class Utility {
 
@@ -78,5 +80,26 @@ public class Utility {
 			toReturn = true;
 		
 		return toReturn;
+	}
+	
+	/*
+	 * Gets the body of an email to send.
+	 */
+	public static String getBody(String method, Exception e) {
+		return "";
+		//TODO
+	}
+	
+	/*
+	 * Gets the body of an email to send.
+	 * 
+	 * In this overloaded method version, an extra string is provided.
+	 * 
+	 * This string is included in the email, and can be some special information from the method itself,
+	 * as a probable cause for failure, for example.
+	 */
+	public static String getBody(String method, Exception e, String otherInfo) {
+		return "";
+		//TODO
 	}
 }

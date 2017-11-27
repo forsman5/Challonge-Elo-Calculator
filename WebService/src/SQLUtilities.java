@@ -47,6 +47,12 @@ public class SQLUtilities {
 		try {
 			conn = DriverManager.getConnection(connectionString);
 		} catch (SQLException e) {
+			String message = Utility.getBody("getConnection", e, "Bad connection string.");
+			String subject = "Error occured in Challonge Elo Parser application!";
+			
+			Utility.sendEmail(Constants.ERROR_ALERT_DESTINATION, Constants.ERROR_ALERT_ORIGINATION, subject, message);
+			
+			//remove for production
 			e.printStackTrace();
 		}
 		
@@ -109,6 +115,12 @@ public class SQLUtilities {
 			try {
 				cs.setDate(2, new java.sql.Date(textFormat.parse(x.dateStarted).getTime()));
 			} catch (java.text.ParseException e) {
+				String message = Utility.getBody("insertTournament", e, "Tournament contained an invalid date. Tournament: " + x.name + ", date: " + x.dateStarted);
+				String subject = "Error occured in Challonge Elo Parser application!";
+				
+				Utility.sendEmail(Constants.ERROR_ALERT_DESTINATION, Constants.ERROR_ALERT_ORIGINATION, subject, message);
+				
+				//remove for production
 				e.printStackTrace();
 			}
 					
@@ -118,6 +130,12 @@ public class SQLUtilities {
 			cs.executeQuery();
 			
 		} catch (SQLException e) {
+			String message = Utility.getBody("insertTournament", e);
+			String subject = "Error occured in Challonge Elo Parser application!";
+			
+			Utility.sendEmail(Constants.ERROR_ALERT_DESTINATION, Constants.ERROR_ALERT_ORIGINATION, subject, message);
+			
+			//remove for production
 			e.printStackTrace();
 		}
 	}
@@ -165,6 +183,12 @@ public class SQLUtilities {
 			cs.executeQuery();
 			
 		} catch (SQLException e) {
+			String message = Utility.getBody("insertPlayer", e);
+			String subject = "Error occured in Challonge Elo Parser application!";
+			
+			Utility.sendEmail(Constants.ERROR_ALERT_DESTINATION, Constants.ERROR_ALERT_ORIGINATION, subject, message);
+			
+			//remove for production
 			e.printStackTrace();
 		}
 		
@@ -184,6 +208,12 @@ public class SQLUtilities {
 			cs.executeQuery();
 			
 		} catch (SQLException e) {
+			String message = Utility.getBody("insertAlias", e);
+			String subject = "Error occured in Challonge Elo Parser application!";
+			
+			Utility.sendEmail(Constants.ERROR_ALERT_DESTINATION, Constants.ERROR_ALERT_ORIGINATION, subject, message);
+			
+			//remove for production
 			e.printStackTrace();
 		}
 	}
@@ -236,6 +266,12 @@ public class SQLUtilities {
 			cs.executeQuery();
 			
 		} catch (SQLException e) {
+			String message = Utility.getBody("insertPlayerByName", e);
+			String subject = "Error occured in Challonge Elo Parser application!";
+			
+			Utility.sendEmail(Constants.ERROR_ALERT_DESTINATION, Constants.ERROR_ALERT_ORIGINATION, subject, message);
+			
+			//remove for production
 			e.printStackTrace();
 		}
 	}
@@ -301,6 +337,12 @@ public class SQLUtilities {
 			
 			cs.executeQuery();
 		} catch (SQLException e) {
+			String message = Utility.getBody("wipeTables", e, "Perhaps the stored procedure doesn't exist?");
+			String subject = "Error occured in Challonge Elo Parser application!";
+			
+			Utility.sendEmail(Constants.ERROR_ALERT_DESTINATION, Constants.ERROR_ALERT_ORIGINATION, subject, message);
+			
+			//remove for production
 			e.printStackTrace();
 		}
 	}
@@ -320,6 +362,12 @@ public class SQLUtilities {
 			cs.executeQuery();
 			
 		} catch (SQLException e) {
+			String message = Utility.getBody("insertPlacing", e);
+			String subject = "Error occured in Challonge Elo Parser application!";
+			
+			Utility.sendEmail(Constants.ERROR_ALERT_DESTINATION, Constants.ERROR_ALERT_ORIGINATION, subject, message);
+			
+			//remove for production
 			e.printStackTrace();
 		}
 	}
@@ -342,6 +390,12 @@ public class SQLUtilities {
 			cs.executeQuery();
 			
 		} catch (SQLException e) {
+			String message = Utility.getBody("insertMatch", e);
+			String subject = "Error occured in Challonge Elo Parser application!";
+			
+			Utility.sendEmail(Constants.ERROR_ALERT_DESTINATION, Constants.ERROR_ALERT_ORIGINATION, subject, message);
+			
+			//remove for production
 			e.printStackTrace();
 		}
 	}
@@ -383,6 +437,12 @@ public class SQLUtilities {
 			cs.executeQuery();
 			
 		} catch (SQLException e) {
+			String message = Utility.getBody("setElo", e);
+			String subject = "Error occured in Challonge Elo Parser application!";
+			
+			Utility.sendEmail(Constants.ERROR_ALERT_DESTINATION, Constants.ERROR_ALERT_ORIGINATION, subject, message);
+			
+			//remove for production
 			e.printStackTrace();
 		}
 	}
