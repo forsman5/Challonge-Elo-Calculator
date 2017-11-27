@@ -211,7 +211,7 @@ public class Driver {
 			toAdd.curr_id = id;
 			Object temp = j.get("final_rank");
 			
-			if (Constants.isNull(temp.toString())) {
+			if (Utility.isNull(temp.toString())) {
 				//did not advance out of the group stage
 				/*
 				 * Get seed, as this is seed going into the final round (or result out of the group stage)
@@ -470,7 +470,7 @@ public class Driver {
 			//throws an exception if an integer or empty string is encountered... not sure why
 			String gameIdString = j.get("game_id").toString();
 			
-			if (Constants.isNull(gameIdString) || Integer.parseInt(gameIdString) != Constants.GAME_ID) {
+			if (Utility.isNull(gameIdString) || Integer.parseInt(gameIdString) != Constants.GAME_ID) {
 				toRemove.add(j);
 			}
 		}

@@ -8,5 +8,7 @@
 	<classpathentry kind="lib" path="C:/Users/Joe/Desktop/Projects/PowellSmashRankings Git/PowellSmashRankings/WebService/libs/json-20171018.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="lib" path="C:/Users/Joe/Desktop/Projects/PowellSmashRankings Git/PowellSmashRankings/WebService/libs/mysql-connector-java-5.1.44-bin.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Joe/Desktop/Projects/PowellSmashRankings Git/PowellSmashRankings/WebService/libs/activation.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Joe/Desktop/Projects/PowellSmashRankings Git/PowellSmashRankings/WebService/libs/javax.mail.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

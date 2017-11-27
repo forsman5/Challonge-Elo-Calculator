@@ -1,0 +1,8 @@
+
+select players.name, placings.placing, tournaments.name from (placings inner join tournaments on placings.tourney_id = tournaments.tourney_id) inner join players on players.player_id = placings.player_id;
+https://docs.djangoproject.com/en/1.11/intro/overview/
+https://docs.djangoproject.com/en/1.11/intro/tutorial01/
+https://hackernoon.com/a-beginners-guide-to-progressive-web-apps-the-frontend-web-424b6d697e35
+https://www.codementor.io/olatundegaruba/nodejs-restful-apis-in-10-minutes-q0sgsfhbd
+https://www.w3schools.com/sql/sql_join.asp
+select placings.placing, players.name from placings inner join players on players.player_id = placings.player_id where tourney_id = 3781993 order by placings.placing;

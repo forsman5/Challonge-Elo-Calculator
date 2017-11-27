@@ -3,7 +3,7 @@ import org.junit.Test;
 /*
  * Simple test class for methods in Alias.java
  */
-public class AliasTest {
+public class OtherTest {
 	@Test
 	public void testRun() {
 		SQLUtilities sql = new SQLUtilities();
@@ -12,5 +12,10 @@ public class AliasTest {
 		sql.wipeTables();
 		
 		Alias.run();
+	}
+	
+	@Test
+	public void testSendMail() {
+		Utility.sendEmail(Constants.ERROR_ALERT_DESTINATION, Constants.ERROR_ALERT_ORIGINATION, "subject test", "body test \n hi:)");
 	}
 }

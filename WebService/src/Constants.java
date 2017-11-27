@@ -91,16 +91,29 @@ final class Constants {
 	public final static int KFACTOR = 64;
 	
 	/*
-	 * checks if a string is essentially null
-	 * 
-	 * Placed in the constants file as it is a utility method.
+	 * Where to send email alerts to when there is an error
 	 */
-	public static boolean isNull(String in) {
-		boolean toReturn = false;
-		
-		if (in == null || in.isEmpty() || in.trim().isEmpty() || in.equals("null")) 
-			toReturn = true;
-		
-		return toReturn;
-	}
+	public final static String ERROR_ALERT_DESTINATION = "poulsen.5@osu.edu";
+	
+	/*
+	 * Where to send email alerts from when there is an error.
+	 * 
+	 * Must be valid email server, using smtps.
+	 */
+	public final static String ERROR_ALERT_ORIGINATION = "powellsmash@gmail.com";
+	
+	/*
+	 * Password used to log into the server to send the email from.
+	 * 
+	 * Note: For gmail accounts (only officially supported currently),
+	 * if errors are encountered, try ensuring this is turned on:
+	 * https://myaccount.google.com/lesssecureapps
+	 * 
+	 * The system may work with it turned off, but it is currently untested.
+	 * TODO
+	 */
+	public final static String EMAIL_PASSWORD = "";
+
+	//TODO
+	//add logging, and daily activity reports - with a send to constant email
 }

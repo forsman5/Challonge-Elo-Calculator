@@ -251,7 +251,7 @@ public class SQLUtilities {
 		if (id == -1) {
 			String trueName = getNameFromAlias(name); //query the alias database for the name attached to this
 			
-			if (!Constants.isNull(trueName)) {
+			if (!Utility.isNull(trueName)) {
 				id = getPlayerID(trueName);
 			}
 			
