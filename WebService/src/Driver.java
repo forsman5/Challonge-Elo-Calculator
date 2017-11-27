@@ -78,13 +78,15 @@ public class Driver {
 		//sql driver for finding the true player_id (matching records)
 		
 		String url = "https://api.challonge.com/v1/tournaments/"+id+"/matches.json?api_key="+api;
-		ArrayList<JSONObject> json = executeRequest(url);
+		JSONArray json = executeRequestArr(url);
 		
 		filterMatches(json);
 		
 		ArrayList<Match> toReturn = new ArrayList<>();
 		
-		for (JSONObject j : json) {
+		for (int i = 0; i < json.length(); i++) {
+			JSONObject j = json.getJSONObject(i).getJSONObject("match");
+			
 			Match toAdd = new Match();
 			
 			//fill the match object out
@@ -128,30 +130,38 @@ public class Driver {
 		//for most tournaments
 		String reqUrl = "https://api.challonge.com/v1/tournaments.json?state=ended&api_key=" + settings.getString("API_KEY") + "&created_after="+createdAfter;
 		
-		ArrayList<JSONObject> json = executeRequest(reqUrl);
+		JSONArray json = executeRequestArr(reqUrl);
+		
+		ArrayList<JSONObject> allJson = new ArrayList<JSONObject>();
+		
+		for (int i = 0; i < json.length(); i++ ) {
+			allJson.add(json.getJSONObject(i).getJSONObject("tournament"));
+		}
 		
 		//for any tournaments hosted in subdomains
 		for (String s : settings.getStringArr("SUBDOMAIN_NAME")) {
 			String subUrl = reqUrl + "&subdomain=" + s;
 			
-			ArrayList<JSONObject> subJson = executeRequest(subUrl);
+			JSONArray subJson = executeRequestArr(subUrl);
 			
 			/*
 			 * Adding all json objects from the subdomain response into the main
 			 */
-			for (JSONObject j : subJson) {
-				json.add(j);
+			for (int i = 0; i < subJson.length(); i++) {
+				JSONObject j = subJson.getJSONObject(i).getJSONObject("tournament");
+				
+				allJson.add(j);
 			}
 			
 		}
 		
 		//remove all tournaments that don't match a set of criteria
-		filterTournaments(json, settings.getInt("GAME_ID"));
+		filterTournaments(allJson, settings.getInt("GAME_ID"));
 		
 		//arrayList to return, full of tournament objects
 		ArrayList<Tournament> toReturn = new ArrayList<>();
 		
-		for (JSONObject j : json) {
+		for (JSONObject j : allJson) {
 			//convert the new tournaments into tournament objects
 			
 			Tournament toAdd = new Tournament();
@@ -183,13 +193,15 @@ public class Driver {
 	 */
 	public static ArrayList<Player> getPlayers(int tId, SQLUtilities sql, Settings settings) {
 		String url = "https://api.challonge.com/v1/tournaments/"+tId+"/participants.json?api_key=" + settings.getString("API_KEY");
-		ArrayList<JSONObject> json = executeRequest(url);
+		JSONArray json = executeRequestArr(url);
 		
-		filterPlayers(json, settings.getBool("ALLOW_SLASHES"), settings.getStringArr("DISCARD_FLAGS"));
+		filterPlayers(json, settings);
 		
 		ArrayList<Player> toReturn = new ArrayList<>();
 		
-		for (JSONObject j : json) {
+		for (int i = 0; i < json.length(); i++) {
+			JSONObject j = json.getJSONObject(i).getJSONObject("participant");
+			
 			Player toAdd = new Player();
 			
 			//fill the player object out
@@ -395,35 +407,62 @@ public class Driver {
 		return name.trim();
 	}
 
-	private static void filterPlayers(ArrayList<JSONObject> json, boolean slashes, String[] discardFlags) {
-		ArrayList<JSONObject> toRemove = new ArrayList<>();
-
-		for (JSONObject j : json) {
+	private static void filterPlayers(JSONArray json, Settings settings) {
+		for (int i = 0; i < json.length(); i++) {
+			JSONObject j = json.getJSONObject(i).getJSONObject("participant");
+			
 			String name = j.getString("name");
 			
-			if (!slashes) {
+			boolean removed = false;
+			
+			if (!settings.getBool("ALLOW_SLASHES")) {
 				//checking if it contains
 				CharSequence x = "\\";
 				CharSequence y = "/";
 				
 				if (name.contains(x) || name.contains(y)) {
-					toRemove.add(j);
+					json.remove(i);
+					i--;
+					removed = true;
 				}
 			}
 			
-			for (String flag : discardFlags) {
-				CharSequence f = flag;
-				
-				if (name.contains(f)) {
-					// if this name contains one of the flags, remove it
-					toRemove.add(j);
+			if (!removed) {
+				for (String flag : settings.getStringArr("DISCARD_FLAGS")) {
+					CharSequence f = flag;
+					
+					if (name.contains(f)) {
+						// if this name contains one of the flags, remove it
+						json.remove(i);
+						i--;
+						removed = true;
+					}
 				}
 			}
-		}
-		
-		//removing all undesirable records
-		for (JSONObject i : toRemove) {
-			json.remove(i);
+			
+			if (!removed) { // add a setting for this... maybe a decent performance hit?
+				//see if this player has any matches worth saving
+				//this will prevent saving players who entered, only to dq
+				
+				//getmatches
+				String req = "https://api.challonge.com/v1/tournaments/" + j.getInt("tournament_id") + "/participants/" + j.getInt("id") + ".json?include_matches=1"
+						+ "&api_key=" + settings.getString("API_KEY");
+				
+				JSONObject matches = executeRequestObj(req).getJSONObject("participant");
+				
+				if (matches != null) {
+					filterMatches(matches.getJSONArray("matches"));
+				}
+				
+				//TODO
+				//WHY DOESNT THIS WORK
+				
+				if (matches == null || matches.length() == 0 ) {
+					//no useful matches
+					json.remove(i);
+					i--;
+				}
+			}
 		}
 	}
 
@@ -441,65 +480,19 @@ public class Driver {
 	}
 
 	/*
-	 * Turns a response from challonge to an API call for all tournaments into an arrayList of JSONObjects
+	 * For any confusion:
 	 * 
-	 * This is done because challonge returns a set of tournaments, not just one json object
+	 * Why some things are arraylists and some are JSONArrays is due to how the
+	 * data is structured on challonge's end...
+	 * 
+	 * It is an array of nameless JSONObjects, each with one nested JSONObject which is what
+	 * is actually desired.
+	 * 
+	 * TODO:
+	 * Eventually, remove all dependency on Match.java and Tournament.java, only use JSONObjects (I think?
+	 * Would this be better?)
 	 */
-	private static ArrayList<JSONObject> getJson(Response response) {
-		String body = null;
-		
-		try {
-			body = response.body().string();
-			body= body.substring(1, body.length() - 1); //cut out first and final []
-		} catch (IOException e) {
-			String message = Utility.getBody("getJson", e);
-			String subject = "Error occured in Challonge Elo Parser application!";
-			
-			Utility.sendEmail(ERROR_ALERT_DESTINATION, ERROR_ALERT_ORIGINATION, subject, message);
-			
-			//remove for production
-			e.printStackTrace();
-		}
-		
-		ArrayList<JSONObject> toReturn = new ArrayList<>();
-		
-		//find opening bracket
-		while (!body.isEmpty()) {
-			if (body.charAt(0) == '{') {
-				//discard first found opening brace
-				body = body.substring(1);
-				
-				//discard name of object
-				while (body.charAt(0) != '{') {
-					body = body.substring(1);
-				}
-				
-				//now at beginning.. construct new string
-				String temp = "";
-				
-				//fill to end
-				while (body.charAt(0) != '}') {
-					temp = temp + body.charAt(0);
-					body = body.substring(1);
-				}
-
-				//adding final closing brace
-				temp = temp +body.charAt(0);
-				body = body.substring(1);
-				
-				//new object has been filled
-				toReturn.add(new JSONObject(temp));
-			} else { 
-				//discard till find new beginning of a json object
-				body = body.substring(1);
-				
-				//this should discard any extra closing braces
-			}
-		}
-		
-		return toReturn;
-	}
-
+	
 	/*
 	 * Removes any objects in the array list that do not match a set of criteria
 	 * 
@@ -530,27 +523,23 @@ public class Driver {
 	 * 
 	 * Removes any matches score 0-0, or disqualifications (one player scored -1);
 	 */
-	private static void filterMatches(ArrayList<JSONObject> arr) {
+	private static void filterMatches(JSONArray arr) {
 		// if either of the players do not exist in the database, do not log this entry
 		// this means that one of players was filtered out
 		
-		ArrayList<JSONObject> toRemove = new ArrayList<JSONObject>();
-		
-		for (JSONObject j : arr) {
+		for (int i = 0; i < arr.length(); i++) {
+			JSONObject j = arr.getJSONObject(i).getJSONObject("match");
+			
 			String scoreString = j.getString("scores_csv");
 
 			int scores[] = getScores(scoreString);
 			
-			if (scores[0] == 0 && scores[1] == 0) {
-				toRemove.add(j);
-			} else if (scores[0] < 0 || scores[1] < 0) {
-				//disqualification
-				toRemove.add(j);
+			if ((scores[0] == 0 && scores[1] == 0) || (scores[0] < 0 || scores[1] < 0)) {
+				arr.remove(i);
+				
+				//this adjusts for the now shorter list -- doesnt skip the i+1 element when it is shifted left
+				i--;	
 			}
-		}
-		
-		for (JSONObject j : toRemove) {
-			arr.remove(j);
 		}
 	}
 	
@@ -581,12 +570,28 @@ public class Driver {
 	 * 
 	 * If an invalid response is returned, this will return null.
 	 */
-	private static ArrayList<JSONObject> executeRequest(String req) {
+	private static JSONArray executeRequestArr(String req) {
+		return new JSONArray(executeRequestStr(req));
+	}
+	
+	/*
+	 * 
+	 */
+	private static JSONObject executeRequestObj(String req) {
+		return new JSONObject(executeRequestStr(req));
+	}
+	
+	/*
+	 * Execute the given request, returning the request body as a string.
+	 * 
+	 * Returns null if the request is bad.
+	 */
+	private static String executeRequestStr(String req) {
 		OkHttpClient client = new OkHttpClient();
 		Request request = getNewRequest(req);
 		
 		//toReturn
-		ArrayList<JSONObject> json = null;
+		String str = null;
 		
 		//execute new requests
 		
@@ -607,9 +612,14 @@ public class Driver {
 		
 		//check for failure
 		if (response.isSuccessful()) {
-			json = getJson(response);
+			try {
+				str = response.body().string();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		} // else, return null
-		
-		return json;
+
+		return str;
 	}
 }
