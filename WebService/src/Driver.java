@@ -9,6 +9,9 @@ import org.json.*;
  * 
  * More details to follow. TODO
  * 
+ * TODO
+ * Filter out player records with no associated (valid) match records.
+ * 
  * @author Joe Forsman
  *
  */
@@ -55,7 +58,7 @@ public class Driver {
 			//get and process matches 
 			ArrayList<Match> matches = getMatches(t.id, settings.getString("API_KEY"));
 			
-			processMatches(matches, players, sql, settings.getInt("KFACTOR"));
+			processMatches(matches, players, sql, settings.getInt("KFACTOR"), settings.getBool("ACCOUNT_FOR_SCORES"));
 			
 			//saving any not filtered out
 			for (Match m : matches) {
@@ -251,7 +254,7 @@ public class Driver {
 	 * 
 	 * sql param is needed to save elo updates to the db.
 	 */
-	private static void processMatches(ArrayList<Match> matches, ArrayList<Player> players, SQLUtilities sql, int k) {
+	private static void processMatches(ArrayList<Match> matches, ArrayList<Player> players, SQLUtilities sql, int k, boolean account) {
 		//must reconcile all matches using a curr_id to use the proper player_id
 		//all matches with at least one id that does not exist in the player_id table 
 		//   (ie - a spacer) must be filtered out
@@ -288,7 +291,7 @@ public class Driver {
 				int eloW = sql.getElo(m.winner_id);
 				int eloL = sql.getElo(m.loser_id);
 				
-				int elos[] = calcNewElo(eloW, eloL, m.winner_score, m.loser_score, k);
+				int elos[] = calcNewElo(eloW, eloL, m.winner_score, m.loser_score, k, account);
 				
 				sql.setElo(m.winner_id, elos[0]);
 				sql.setElo(m.loser_id, elos[1]);
@@ -308,7 +311,7 @@ public class Driver {
 	 * 
 	 * Element 0 in returned array is the updated elo score of the winner, and Element 0 is the updated elo score of the loser.
 	 */
-	private static int[] calcNewElo(int eloW, int eloL, int wScore, int lScore, int k) {
+	private static int[] calcNewElo(int eloW, int eloL, int wScore, int lScore, int k, boolean account) {
 		//transform the ratings
 		double onePrime = Math.pow(10, eloW/400);
 		double twoPrime = Math.pow(10, eloL/400);
@@ -319,8 +322,12 @@ public class Driver {
 		double simpleScore1;
 		double simpleScore2;
 		
-		//TODO
-		//add accounting for the margin of the win??
+		
+		//account for margin
+		if (account) {
+			k = accountForMargin(k, wScore, lScore);
+		}
+		
 		if (wScore > lScore) {
 			simpleScore1 = 1;
 			simpleScore2 = 0;
@@ -339,6 +346,26 @@ public class Driver {
 		toReturn[1] = (int) Math.round(eloL + k * (simpleScore2 - expected2));
 		
 		return toReturn;
+	}
+	
+	/*
+	 * System to attribute more elo change for a a win or lose by a greater score
+	 */
+	private static int accountForMargin(int k, int score1, int score2) {
+		int scoreDiff = Math.abs(score1-score2);
+		
+		double scorePercent = scoreDiff / Math.max(score1, score2);
+		
+		//if a victory is 100-0, the percent is 100% (1). This means 2 times the original k factor.
+		//else, if a victory is 100-50, percent is 50% (.5). This means the original k factor is returned.
+		//Any victory closer than 100-50 will return a smaller k factor than the original.
+		//Any victory closer than 100-50 will have a percent smaller than 50
+		int newK = (int) Math.round(k * 2 * scorePercent);
+		
+		//however, k factor can never be smaller than a quarter of the original.
+		k = Math.max((int) Math.round(k / 4.0), newK);
+		
+		return k;
 	}
 
 	/*
@@ -568,7 +595,7 @@ public class Driver {
 		try {
 			response = client.newCall(request).execute();
 		} catch (IOException e) {
-			String message = Utility.getBody("executeRequest", e, "Probable cause: Bad request."); // TODO -- include the request in the 3rd param
+			String message = Utility.getBody("executeRequest", e, "Probable cause: Bad request.\n" + request.toString());
 			String subject = "Error occured in Challonge Elo Parser application!";
 			
 			Utility.sendEmail(ERROR_ALERT_DESTINATION, ERROR_ALERT_ORIGINATION, subject, message);
