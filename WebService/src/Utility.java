@@ -1,3 +1,5 @@
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import javax.mail.*;
 import javax.mail.internet.*;
@@ -86,8 +88,16 @@ public class Utility {
 	 * Gets the body of an email to send.
 	 */
 	public static String getBody(String method, Exception e) {
-		return "";
-		//TODO
+		String mess = "";
+		
+		//get current time
+		DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+		Date date = new Date();
+		
+		mess += "Error occured in method: " + method + ", at " + dateFormat.format(date) + "\n";
+		mess += e.getStackTrace() + "\n\n";
+		
+		return mess;
 	}
 	
 	/*
@@ -99,7 +109,16 @@ public class Utility {
 	 * as a probable cause for failure, for example.
 	 */
 	public static String getBody(String method, Exception e, String otherInfo) {
-		return "";
-		//TODO
+		String mess = "";
+		
+		//get current time
+		DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+		Date date = new Date();
+		
+		mess += "Error occured in method: " + method + ", at " + dateFormat.format(date) + "\n";
+		mess += "Additional information provided by program includes: " + otherInfo + "\n";
+		mess += e.getStackTrace() + "\n\n";
+		
+		return mess;
 	}
 }
