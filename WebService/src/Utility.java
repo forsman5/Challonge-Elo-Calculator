@@ -2,13 +2,22 @@ import java.util.*;
 import javax.mail.*;
 import javax.mail.internet.*;
 
+/*
+ * Basic utility class to contain static methods to be used across the codebase.
+ */
 public class Utility {
 
 	/*
-	 * TODO
+	 * Send a basic email. 
+	 * 
+	 * First parameter, the destination, is the email address to send to.
 	 * 
 	 * The originator parameter contains firstly the email address to send from, and a second element contains the
 	 * password needed to access that account.
+	 * 
+	 * Third string is the subject line of the email.
+	 * 
+	 * Final parameter is the body of the email to be sent, as a single string.
 	 * 
 	 */
 	public static void sendEmail(String dest, String originator[], String subject, String mess) {    
