@@ -30,12 +30,9 @@ public class Alias {
 	 * 
 	 * Reads from a constant in the constant class, saves to another constant.
 	 */
-	public static void run() {
-		//for saving to the database
-		SQLUtilities sql = new SQLUtilities();
-		
+	public static void run(String source, String store, SQLUtilities sql) {
 		//read new aliases to process
-		ArrayList<AliasRecord> aliases = getAliases();
+		ArrayList<AliasRecord> aliases = getAliases(source);
 		
 		//open file for writing (appending)
 		
@@ -45,7 +42,7 @@ public class Alias {
 			//append the data to the old file
 			try {
 				//open to append
-				FileWriter fw = new FileWriter(Constants.ALIAS_OLD, true);
+				FileWriter fw = new FileWriter(store, true);
 				BufferedWriter writer = new BufferedWriter(fw);
 
 				writer.write(a.name + ":" + a.alias + "\n");
@@ -69,7 +66,7 @@ public class Alias {
 	 * 
 	 * Clears the Constants.Alias file after reading.
 	 */
-	private static ArrayList<AliasRecord> getAliases() {
+	private static ArrayList<AliasRecord> getAliases(String source) {
 		SQLUtilities sql = new SQLUtilities();
 		
 		ArrayList<AliasRecord> toReturn = new ArrayList<>();
@@ -78,7 +75,7 @@ public class Alias {
 		
 		//open the file for reading
 		try {
-			inFile = new Scanner(new File(Constants.ALIAS_FILE));
+			inFile = new Scanner(new File(source));
 		} catch (FileNotFoundException e) {
 			//no new aliases to add
 			//end execution
@@ -120,7 +117,7 @@ public class Alias {
 		
 		//clear the contents of this file
 		try {
-			FileWriter writer = new FileWriter(Constants.ALIAS_FILE);
+			FileWriter writer = new FileWriter(source);
 			writer.write("");
 			writer.close();
 		} catch (IOException e) {

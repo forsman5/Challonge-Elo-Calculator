@@ -13,17 +13,30 @@ import org.json.*;
  *
  */
 public class Driver {
+	/*
+	 * Where to send emails when throwing an error
+	 */
+	private static String ERROR_ALERT_DESTINATION;
+	private static String[] ERROR_ALERT_ORIGINATION;
+	
 	public static void main (String [] args) {
+		//settings
+		Settings settings = new Settings();
+		
+		//getting settings
+		ERROR_ALERT_DESTINATION = settings.getString("ERROR_ALERT_DESTINATION");
+		ERROR_ALERT_ORIGINATION = settings.getStringArr("ERROR_ALERT_ORIGINATION");
+		
+		//sql drive
+		SQLUtilities sql = new SQLUtilities(settings);
+		
 		//process any new aliases before running the new tournaments
-		Alias.run();
+		Alias.run(settings.getString("ALIAS_FILE"), settings.getString("ALIAS_OLD"), sql);
 		
 		//load last saved date
 		ArrayList<Tournament> tournies = null;
 		
-		//sql drive
-		SQLUtilities util = new SQLUtilities();
-		
-		tournies = getTournaments(util.getLastCheckedDate());
+		tournies = getTournaments(sql, settings);
 		
 		if (tournies == null) {
 			//setting it to an empty list
@@ -33,20 +46,20 @@ public class Driver {
 		
 		for (Tournament t : tournies) {
 			//get and process players
-			ArrayList<Player> players = getPlayers(t.id);
+			ArrayList<Player> players = getPlayers(t.id, sql, settings);
 			
 			for (Player p : players) {
-				util.insertPlacing(p.player_id, t.id, p.final_placing);
+				sql.insertPlacing(p.player_id, t.id, p.final_placing);
 			}
 			
 			//get and process matches 
-			ArrayList<Match> matches = getMatches(t.id);
+			ArrayList<Match> matches = getMatches(t.id, settings.getString("API_KEY"));
 			
-			processMatches(matches, players, util);
+			processMatches(matches, players, sql, settings.getInt("KFACTOR"));
 			
 			//saving any not filtered out
 			for (Match m : matches) {
-				util.insertMatch(m);
+				sql.insertMatch(m);
 			}
 		}
 	}	
@@ -58,10 +71,10 @@ public class Driver {
 	 * 
 	 * Nothing is saved - this must be done with the array of players.
 	 */
-	public static ArrayList<Match> getMatches(int id) {
+	public static ArrayList<Match> getMatches(int id, String api) {
 		//sql driver for finding the true player_id (matching records)
 		
-		String url = "https://api.challonge.com/v1/tournaments/"+id+"/matches.json?api_key="+Constants.API_KEY;
+		String url = "https://api.challonge.com/v1/tournaments/"+id+"/matches.json?api_key="+api;
 		ArrayList<JSONObject> json = executeRequest(url);
 		
 		filterMatches(json);
@@ -106,17 +119,16 @@ public class Driver {
 	 * 
 	 * All new tournaments that are returned are automatically saved to the database.
 	 */
-	public static ArrayList<Tournament> getTournaments(String createdAfter) {
-		//for inserting the new tournaments
-		SQLUtilities sql = new SQLUtilities();
+	public static ArrayList<Tournament> getTournaments(SQLUtilities sql, Settings settings) {
+		String createdAfter = sql.getLastCheckedDate();
 		
 		//for most tournaments
-		String reqUrl = "https://api.challonge.com/v1/tournaments.json?state=ended&api_key=" + Constants.API_KEY + "&created_after="+createdAfter;
+		String reqUrl = "https://api.challonge.com/v1/tournaments.json?state=ended&api_key=" + settings.getString("API_KEY") + "&created_after="+createdAfter;
 		
 		ArrayList<JSONObject> json = executeRequest(reqUrl);
 		
 		//for any tournaments hosted in subdomains
-		for (String s : Constants.SUBDOMAIN_NAME) {
+		for (String s : settings.getStringArr("SUBDOMAIN_NAME")) {
 			String subUrl = reqUrl + "&subdomain=" + s;
 			
 			ArrayList<JSONObject> subJson = executeRequest(subUrl);
@@ -131,7 +143,7 @@ public class Driver {
 		}
 		
 		//remove all tournaments that don't match a set of criteria
-		filterTournaments(json);
+		filterTournaments(json, settings.getInt("GAME_ID"));
 		
 		//arrayList to return, full of tournament objects
 		ArrayList<Tournament> toReturn = new ArrayList<>();
@@ -163,15 +175,14 @@ public class Driver {
 	 * if an error occurs, returns null. Else, will return an arraylist of at least size 0.
 	 * 
 	 * For players that do not already exist in the database, this method will save the newly created players to the database.
+	 * 
+	 * sql used to find the true player_id (matching records)
 	 */
-	public static ArrayList<Player> getPlayers(int tId) {
-		//sql driver for finding the true player_id (matching records)
-		SQLUtilities sql = new SQLUtilities();
-		
-		String url = "https://api.challonge.com/v1/tournaments/"+tId+"/participants.json?api_key="+Constants.API_KEY;
+	public static ArrayList<Player> getPlayers(int tId, SQLUtilities sql, Settings settings) {
+		String url = "https://api.challonge.com/v1/tournaments/"+tId+"/participants.json?api_key=" + settings.getString("API_KEY");
 		ArrayList<JSONObject> json = executeRequest(url);
 		
-		filterPlayers(json);
+		filterPlayers(json, settings.getBool("ALLOW_SLASHES"), settings.getStringArr("DISCARD_FLAGS"));
 		
 		ArrayList<Player> toReturn = new ArrayList<>();
 		
@@ -240,7 +251,7 @@ public class Driver {
 	 * 
 	 * sql param is needed to save elo updates to the db.
 	 */
-	private static void processMatches(ArrayList<Match> matches, ArrayList<Player> players, SQLUtilities sql) {
+	private static void processMatches(ArrayList<Match> matches, ArrayList<Player> players, SQLUtilities sql, int k) {
 		//must reconcile all matches using a curr_id to use the proper player_id
 		//all matches with at least one id that does not exist in the player_id table 
 		//   (ie - a spacer) must be filtered out
@@ -277,7 +288,7 @@ public class Driver {
 				int eloW = sql.getElo(m.winner_id);
 				int eloL = sql.getElo(m.loser_id);
 				
-				int elos[] = calcNewElo(eloW, eloL, m.winner_score, m.loser_score);
+				int elos[] = calcNewElo(eloW, eloL, m.winner_score, m.loser_score, k);
 				
 				sql.setElo(m.winner_id, elos[0]);
 				sql.setElo(m.loser_id, elos[1]);
@@ -297,7 +308,7 @@ public class Driver {
 	 * 
 	 * Element 0 in returned array is the updated elo score of the winner, and Element 0 is the updated elo score of the loser.
 	 */
-	private static int[] calcNewElo(int eloW, int eloL, int wScore, int lScore) {
+	private static int[] calcNewElo(int eloW, int eloL, int wScore, int lScore, int k) {
 		//transform the ratings
 		double onePrime = Math.pow(10, eloW/400);
 		double twoPrime = Math.pow(10, eloL/400);
@@ -324,8 +335,8 @@ public class Driver {
 		
 		int[] toReturn = new int[] {0,0};
 		
-		toReturn[0] = (int) Math.round(eloW + Constants.KFACTOR * (simpleScore1 - expected1));
-		toReturn[1] = (int) Math.round(eloL + Constants.KFACTOR * (simpleScore2 - expected2));
+		toReturn[0] = (int) Math.round(eloW + k * (simpleScore1 - expected1));
+		toReturn[1] = (int) Math.round(eloL + k * (simpleScore2 - expected2));
 		
 		return toReturn;
 	}
@@ -357,13 +368,13 @@ public class Driver {
 		return name.trim();
 	}
 
-	private static void filterPlayers(ArrayList<JSONObject> json) {
+	private static void filterPlayers(ArrayList<JSONObject> json, boolean slashes, String[] discardFlags) {
 		ArrayList<JSONObject> toRemove = new ArrayList<>();
 
 		for (JSONObject j : json) {
 			String name = j.getString("name");
 			
-			if (!Constants.ALLOW_SLASHES) {
+			if (!slashes) {
 				//checking if it contains
 				CharSequence x = "\\";
 				CharSequence y = "/";
@@ -373,7 +384,7 @@ public class Driver {
 				}
 			}
 			
-			for (String flag : Constants.DISCARD_FLAGS) {
+			for (String flag : discardFlags) {
 				CharSequence f = flag;
 				
 				if (name.contains(f)) {
@@ -417,7 +428,7 @@ public class Driver {
 			String message = Utility.getBody("getJson", e);
 			String subject = "Error occured in Challonge Elo Parser application!";
 			
-			Utility.sendEmail(Constants.ERROR_ALERT_DESTINATION, Constants.ERROR_ALERT_ORIGINATION, subject, message);
+			Utility.sendEmail(ERROR_ALERT_DESTINATION, ERROR_ALERT_ORIGINATION, subject, message);
 			
 			//remove for production
 			e.printStackTrace();
@@ -467,7 +478,7 @@ public class Driver {
 	 * 
 	 * This criteria is taken from Constants.java
 	 */
-	private static void filterTournaments(ArrayList<JSONObject> arr) {
+	private static void filterTournaments(ArrayList<JSONObject> arr, int gameId) {
 		ArrayList<JSONObject> toRemove = new ArrayList<>();
 		
 		//cannot remove while looping based on size
@@ -476,7 +487,7 @@ public class Driver {
 			//throws an exception if an integer or empty string is encountered... not sure why
 			String gameIdString = j.get("game_id").toString();
 			
-			if (Utility.isNull(gameIdString) || Integer.parseInt(gameIdString) != Constants.GAME_ID) {
+			if (Utility.isNull(gameIdString) || Integer.parseInt(gameIdString) != gameId) {
 				toRemove.add(j);
 			}
 		}
@@ -560,7 +571,7 @@ public class Driver {
 			String message = Utility.getBody("executeRequest", e, "Probable cause: Bad request."); // TODO -- include the request in the 3rd param
 			String subject = "Error occured in Challonge Elo Parser application!";
 			
-			Utility.sendEmail(Constants.ERROR_ALERT_DESTINATION, Constants.ERROR_ALERT_ORIGINATION, subject, message);
+			Utility.sendEmail(ERROR_ALERT_DESTINATION, ERROR_ALERT_ORIGINATION, subject, message);
 			
 			//remove for production
 			//bad request

@@ -10,12 +10,27 @@ public class OtherTest {
 		
 		//preapring for new alias run
 		sql.wipeTables();
+
+		Settings settings = new Settings();
 		
-		Alias.run();
+		Alias.run(settings.getString("ALIAS_FILE"), settings.getString("ALIAS_OLD"), sql);
 	}
 	
 	@Test
 	public void testSendMail() {
-		Utility.sendEmail(Constants.ERROR_ALERT_DESTINATION, Constants.ERROR_ALERT_ORIGINATION, "subject test", "body test \n hi:)");
+		Settings settings = new Settings();
+		
+		Utility.sendEmail(settings.getString("ERROR_ALERT_DESTINATION"), settings.getStringArr("ERROR_ALERT_ORIGINATION"), "subject test", "body test \n hi:)");
+	}
+	
+	@Test
+	public void testGetStringArr() {
+		Settings settings = new Settings();
+		
+		String[] result = settings.getStringArr("DISCARD_FLAGS");
+		
+		for (String s : result) {
+			System.out.println(s);
+		}
 	}
 }

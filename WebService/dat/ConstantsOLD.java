@@ -5,7 +5,7 @@
  * 
  * These are also used as a setting file
  */
-final class Constants {
+final class ConstantsOLD {
 	/*
 	 * only include games played with this game id.
 	 */

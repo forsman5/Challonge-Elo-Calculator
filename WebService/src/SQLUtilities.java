@@ -19,11 +19,19 @@ public class SQLUtilities {
 	
 	private Connection conn = null;
 	
+	private String ERROR_ALERT_DESTINATION;
+	private String[] ERROR_ALERT_ORIGINATION;
+	
 	/*
 	 * Constructor. Initializes this as the driver for the JDBC of mysql
 	 */
 	public SQLUtilities() {
 
+		Settings settings = new Settings();
+		
+		ERROR_ALERT_DESTINATION = settings.getString("ERROR_ALERT_DESTINATION");
+		ERROR_ALERT_ORIGINATION = settings.getStringArr("ERROR_ALERT_ORIGINATION");
+		
         // This will load the MySQL driver, each DB has its own driver
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
@@ -32,15 +40,35 @@ public class SQLUtilities {
 			e.printStackTrace();
 		}
 		
-        conn = getConnection();
+        conn = getConnection(settings.getString("DATABASE_NAME"), settings.getString("DATABASE_USERNAME"), settings.getString("DATABASE_PASSWORD"));
 	}
+	
+	/*
+	 * Constructor. Initializes this as the driver for the JDBC of mysql
+	 * 
+	 * providing an already initialized settings object gives a slight performance boost
+	 */
+	public SQLUtilities(Settings settings) {
+		ERROR_ALERT_DESTINATION = settings.getString("ERROR_ALERT_DESTINATION");
+		ERROR_ALERT_ORIGINATION = settings.getStringArr("ERROR_ALERT_ORIGINATION");
+		
+        // This will load the MySQL driver, each DB has its own driver
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+		} catch (ClassNotFoundException e) {
+			//should not occur...
+			e.printStackTrace();
+		}
+		
+        conn = getConnection(settings.getString("DATABASE_NAME"), settings.getString("DATABASE_USERNAME"), settings.getString("DATABASE_PASSWORD"));
+	}	
 	
 	/*
 	 * Gets the standard connection object used to connect to the database.
 	 */
-	private static Connection getConnection() {
-		String connectionString = "jdbc:mysql://localhost/" + Constants.DATABASE_NAME + "?"
-                + "user=" + Constants.DATABASE_USERNAME + "&password=" + Constants.DATABASE_PASSWORD+"&useSSL=false";
+	private Connection getConnection(String db, String user, String pass) {
+		String connectionString = "jdbc:mysql://localhost/" + db + "?"
+                + "user=" + user + "&password=" + pass +"&useSSL=false";
 
 		Connection conn = null;
 		
@@ -50,7 +78,7 @@ public class SQLUtilities {
 			String message = Utility.getBody("getConnection", e, "Bad connection string.");
 			String subject = "Error occured in Challonge Elo Parser application!";
 			
-			Utility.sendEmail(Constants.ERROR_ALERT_DESTINATION, Constants.ERROR_ALERT_ORIGINATION, subject, message);
+			Utility.sendEmail(ERROR_ALERT_DESTINATION, ERROR_ALERT_ORIGINATION, subject, message);
 			
 			//remove for production
 			e.printStackTrace();
@@ -118,7 +146,7 @@ public class SQLUtilities {
 				String message = Utility.getBody("insertTournament", e, "Tournament contained an invalid date. Tournament: " + x.name + ", date: " + x.dateStarted);
 				String subject = "Error occured in Challonge Elo Parser application!";
 				
-				Utility.sendEmail(Constants.ERROR_ALERT_DESTINATION, Constants.ERROR_ALERT_ORIGINATION, subject, message);
+				Utility.sendEmail(ERROR_ALERT_DESTINATION, ERROR_ALERT_ORIGINATION, subject, message);
 				
 				//remove for production
 				e.printStackTrace();
@@ -133,7 +161,7 @@ public class SQLUtilities {
 			String message = Utility.getBody("insertTournament", e);
 			String subject = "Error occured in Challonge Elo Parser application!";
 			
-			Utility.sendEmail(Constants.ERROR_ALERT_DESTINATION, Constants.ERROR_ALERT_ORIGINATION, subject, message);
+			Utility.sendEmail(ERROR_ALERT_DESTINATION, ERROR_ALERT_ORIGINATION, subject, message);
 			
 			//remove for production
 			e.printStackTrace();
@@ -186,7 +214,7 @@ public class SQLUtilities {
 			String message = Utility.getBody("insertPlayer", e);
 			String subject = "Error occured in Challonge Elo Parser application!";
 			
-			Utility.sendEmail(Constants.ERROR_ALERT_DESTINATION, Constants.ERROR_ALERT_ORIGINATION, subject, message);
+			Utility.sendEmail(ERROR_ALERT_DESTINATION, ERROR_ALERT_ORIGINATION, subject, message);
 			
 			//remove for production
 			e.printStackTrace();
@@ -211,7 +239,7 @@ public class SQLUtilities {
 			String message = Utility.getBody("insertAlias", e);
 			String subject = "Error occured in Challonge Elo Parser application!";
 			
-			Utility.sendEmail(Constants.ERROR_ALERT_DESTINATION, Constants.ERROR_ALERT_ORIGINATION, subject, message);
+			Utility.sendEmail(ERROR_ALERT_DESTINATION, ERROR_ALERT_ORIGINATION, subject, message);
 			
 			//remove for production
 			e.printStackTrace();
@@ -269,7 +297,7 @@ public class SQLUtilities {
 			String message = Utility.getBody("insertPlayerByName", e);
 			String subject = "Error occured in Challonge Elo Parser application!";
 			
-			Utility.sendEmail(Constants.ERROR_ALERT_DESTINATION, Constants.ERROR_ALERT_ORIGINATION, subject, message);
+			Utility.sendEmail(ERROR_ALERT_DESTINATION, ERROR_ALERT_ORIGINATION, subject, message);
 			
 			//remove for production
 			e.printStackTrace();
@@ -340,7 +368,7 @@ public class SQLUtilities {
 			String message = Utility.getBody("wipeTables", e, "Perhaps the stored procedure doesn't exist?");
 			String subject = "Error occured in Challonge Elo Parser application!";
 			
-			Utility.sendEmail(Constants.ERROR_ALERT_DESTINATION, Constants.ERROR_ALERT_ORIGINATION, subject, message);
+			Utility.sendEmail(ERROR_ALERT_DESTINATION, ERROR_ALERT_ORIGINATION, subject, message);
 			
 			//remove for production
 			e.printStackTrace();
@@ -365,7 +393,7 @@ public class SQLUtilities {
 			String message = Utility.getBody("insertPlacing", e);
 			String subject = "Error occured in Challonge Elo Parser application!";
 			
-			Utility.sendEmail(Constants.ERROR_ALERT_DESTINATION, Constants.ERROR_ALERT_ORIGINATION, subject, message);
+			Utility.sendEmail(ERROR_ALERT_DESTINATION, ERROR_ALERT_ORIGINATION, subject, message);
 			
 			//remove for production
 			e.printStackTrace();
@@ -393,7 +421,7 @@ public class SQLUtilities {
 			String message = Utility.getBody("insertMatch", e);
 			String subject = "Error occured in Challonge Elo Parser application!";
 			
-			Utility.sendEmail(Constants.ERROR_ALERT_DESTINATION, Constants.ERROR_ALERT_ORIGINATION, subject, message);
+			Utility.sendEmail(ERROR_ALERT_DESTINATION, ERROR_ALERT_ORIGINATION, subject, message);
 			
 			//remove for production
 			e.printStackTrace();
@@ -440,7 +468,7 @@ public class SQLUtilities {
 			String message = Utility.getBody("setElo", e);
 			String subject = "Error occured in Challonge Elo Parser application!";
 			
-			Utility.sendEmail(Constants.ERROR_ALERT_DESTINATION, Constants.ERROR_ALERT_ORIGINATION, subject, message);
+			Utility.sendEmail(ERROR_ALERT_DESTINATION, ERROR_ALERT_ORIGINATION, subject, message);
 			
 			//remove for production
 			e.printStackTrace();
