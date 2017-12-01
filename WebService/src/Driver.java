@@ -65,6 +65,9 @@ public class Driver {
 				sql.insertMatch(m);
 			}
 		}
+		
+		//remove all void players added
+		removeEmptyPlayerRecords(sql);
 	}	
 
 	/*
@@ -439,30 +442,6 @@ public class Driver {
 					}
 				}
 			}
-			
-			if (!removed) { // add a setting for this... maybe a decent performance hit?
-				//see if this player has any matches worth saving
-				//this will prevent saving players who entered, only to dq
-				
-				//getmatches
-				String req = "https://api.challonge.com/v1/tournaments/" + j.getInt("tournament_id") + "/participants/" + j.getInt("id") + ".json?include_matches=1"
-						+ "&api_key=" + settings.getString("API_KEY");
-				
-				JSONObject matches = executeRequestObj(req).getJSONObject("participant");
-				
-				if (matches != null) {
-					filterMatches(matches.getJSONArray("matches"));
-				}
-				
-				//TODO
-				//WHY DOESNT THIS WORK
-				
-				if (matches == null || matches.length() == 0 ) {
-					//no useful matches
-					json.remove(i);
-					i--;
-				}
-			}
 		}
 	}
 
@@ -543,6 +522,16 @@ public class Driver {
 		}
 	}
 	
+	/*
+	 * Breaks a string into a single array of size two.
+	 * 
+	 * Each element is a score, one for each player.
+	 * 
+	 * The input string must be formatted as a set of comma separated game scores.
+	 * Each game score must be in the form X-Y where x and y are integers.
+	 * 
+	 * an example parameter is "1-2,2-3,5-1,2-3".
+	 */
 	private static int[] getScores(String scores) {
 		int[] toReturn = new int[] {0, 0};
 		
@@ -571,22 +560,6 @@ public class Driver {
 	 * If an invalid response is returned, this will return null.
 	 */
 	private static JSONArray executeRequestArr(String req) {
-		return new JSONArray(executeRequestStr(req));
-	}
-	
-	/*
-	 * 
-	 */
-	private static JSONObject executeRequestObj(String req) {
-		return new JSONObject(executeRequestStr(req));
-	}
-	
-	/*
-	 * Execute the given request, returning the request body as a string.
-	 * 
-	 * Returns null if the request is bad.
-	 */
-	private static String executeRequestStr(String req) {
 		OkHttpClient client = new OkHttpClient();
 		Request request = getNewRequest(req);
 		
@@ -615,11 +588,31 @@ public class Driver {
 			try {
 				str = response.body().string();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
+				// should not occur, should be caught by isSuccessful
 				e.printStackTrace();
 			}
-		} // else, return null
 
-		return str;
+			return new JSONArray(str);
+		} else {
+			return null;
+		}
+	}
+	
+
+	/*
+	 * some players register for a tournament, and then drop out, resulting in player
+	 * records who have no associated match records.
+	 * These are considered bloat, and are removed in this method
+	 * 
+	 * Only caveat: Any players who were added as aliases are not removed.
+	 */
+	private static void removeEmptyPlayerRecords(SQLUtilities sql) {
+		Player[] players = sql.getEmptyPlayers();
+		
+		for (Player p : players) {
+			if (sql.getAliases(p.name).length == 0) {
+				sql.deletePlayer(p.player_id);
+			}
+		}
 	}
 }

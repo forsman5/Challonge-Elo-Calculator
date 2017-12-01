@@ -5,6 +5,7 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 
 /*
@@ -471,6 +472,98 @@ public class SQLUtilities {
 			Utility.sendEmail(ERROR_ALERT_DESTINATION, ERROR_ALERT_ORIGINATION, subject, message);
 			
 			//remove for production
+			e.printStackTrace();
+		}
+	}
+
+	/*
+	 * Gets an array of Player objects who have no match records associated with
+	 * their relevant player_id in the match table of the database.
+	 */
+	public Player[] getEmptyPlayers() {
+		Player[] toReturn = new Player[] {};
+		
+		try {
+			CallableStatement cs = conn.prepareCall("{call GetEmptyPlayers()}");
+			
+			ResultSet rs = cs.executeQuery();
+			
+			ArrayList<Player> tempList = new ArrayList<>();
+			
+			while (rs.next()) {
+				Player p = new Player();
+				
+				p.player_id = rs.getInt(1);
+				p.elo = rs.getInt(2);
+				p.name = rs.getString(3);
+				
+				tempList.add(p);
+			}
+			
+			toReturn = tempList.toArray(toReturn);
+			
+			//else, toReturn already initialized to -1
+		} catch (SQLException e) {
+			//should be caught by next
+			e.printStackTrace();
+		}
+		
+		return toReturn;
+	}
+	
+	/*
+	 * Get an array of every alias attached to the given name present in the aliases datatable.
+	 */
+	public String[] getAliases(String name) {
+		String[] toReturn = new String[] {};
+		
+		try {
+			CallableStatement cs = conn.prepareCall("{call GetAliases(?)}");
+			cs.setString(1, name);
+			
+			ResultSet rs = cs.executeQuery();
+			
+			ArrayList<String> tempList = new ArrayList<>();
+			
+			while (rs.next()) {
+				tempList.add(rs.getString(1));
+			}
+			
+			toReturn = tempList.toArray(toReturn);
+			
+			//else, toReturn already initialized to -1
+		} catch (SQLException e) {
+			//should be caught by next
+			e.printStackTrace();
+		}
+		
+		return toReturn;
+	}
+
+	/*
+	 * Removes a player from the player database.
+	 * 
+	 * This will also remove any associate match records, as well as any placing records.
+	 * 
+	 * Removes any trace of a player ever playing -- except elo. Elo is not updated, and cannot be updated, short of a total
+	 * recalculation.
+	 */
+	public void deletePlayer(int player_id) {
+		try {
+			//these are not exposed individually
+			//if they were, possible that theres leftover match records with no players attached..
+			CallableStatement cs = conn.prepareCall("{call DeletePlayer(?)}");
+			CallableStatement cs1 = conn.prepareCall("{call DeletePlacings(?)}");
+			CallableStatement cs2 = conn.prepareCall("{call DeleteMatches(?)}");
+			
+			cs.setInt(1, player_id);
+			cs1.setInt(1, player_id);
+			cs2.setInt(1, player_id);
+			
+			cs.executeQuery();
+			cs1.executeQuery();
+			cs2.executeQuery();
+		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 	}

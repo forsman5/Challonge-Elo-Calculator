@@ -1,0 +1,12 @@
+DROP PROCEDURE IF EXISTS GetAliases;
+DELIMITER //
+CREATE PROCEDURE GetAliases
+(
+IN inName VARCHAR(255)
+)
+BEGIN
+SELECT alias
+FROM aliases
+WHERE name = inName;
+END //
+DELIMITER ;
