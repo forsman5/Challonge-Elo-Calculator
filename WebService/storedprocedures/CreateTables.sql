@@ -55,5 +55,16 @@ CREATE TABLE placings
   
   PRIMARY KEY     (placing_id)
 );
+
+DROP TABLE IF EXISTS event_log;
+CREATE TABLE event_log
+(
+  event_id int unsigned NOT NULL auto_increment,
+  date_occured DATE NOT NULL,
+  method VARCHAR(255) NOT NULL,
+  message VARCHAR(255),
+  
+  PRIMARY KEY (event_id)
+);
 END //
 DELIMITER ;

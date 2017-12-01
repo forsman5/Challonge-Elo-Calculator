@@ -118,6 +118,8 @@ public class SQLUtilities {
 				//return the epoch, as no data currently exists in the database
 				out = Date.valueOf("1970-01-01");
 			}
+			
+			insertEventLog("GetLastCheckedDate", "Found last checked date to be " + out);
 		} catch (SQLException e) {
 			//should be caught by next
 			e.printStackTrace();
@@ -158,6 +160,8 @@ public class SQLUtilities {
 			
 			cs.executeQuery();
 			
+			insertEventLog("InsertTournament", "Added tournament with tourney_id " + x.id);
+			
 		} catch (SQLException e) {
 			String message = Utility.getBody("insertTournament", e);
 			String subject = "Error occured in Challonge Elo Parser application!";
@@ -185,6 +189,8 @@ public class SQLUtilities {
 				toReturn = rs.getString(1);
 			}
 			
+			insertEventLog("GetPlayerName", "Got player name " + toReturn + " from player_id " + id);
+			
 			//else, toReturn already initialized to -1
 		} catch (SQLException e) {
 			//should be caught by next
@@ -211,6 +217,8 @@ public class SQLUtilities {
 			
 			cs.executeQuery();
 			
+			insertEventLog("InsertPlayer", "Added player with id " + toAdd.player_id);
+			
 		} catch (SQLException e) {
 			String message = Utility.getBody("insertPlayer", e);
 			String subject = "Error occured in Challonge Elo Parser application!";
@@ -235,6 +243,8 @@ public class SQLUtilities {
 			cs.setString(2, alias);
 			
 			cs.executeQuery();
+			
+			insertEventLog("InsertAlias", "Added alias with name " + name + " and alias " + alias);
 			
 		} catch (SQLException e) {
 			String message = Utility.getBody("insertAlias", e);
@@ -265,6 +275,8 @@ public class SQLUtilities {
 				toReturn = rs.getInt(1);
 			}
 			
+			insertEventLog("GetPlayerID", "Got player ID " + toReturn + " from name " + name);
+			
 			//else, toReturn already initialized to -1
 		} catch (SQLException e) {
 			//should be caught by next
@@ -294,6 +306,8 @@ public class SQLUtilities {
 			
 			cs.executeQuery();
 			
+			insertEventLog("InsertPlayerByName", "Inserted a new player with the name " + name);
+			
 		} catch (SQLException e) {
 			String message = Utility.getBody("insertPlayerByName", e);
 			String subject = "Error occured in Challonge Elo Parser application!";
@@ -321,6 +335,7 @@ public class SQLUtilities {
 			}
 			
 			//else do nothing, id remains -1
+			insertEventLog("GetIDFromAlias", "Got id " + id + " from alias " + name);
 		}
 		
 		//else do nothing, return the original id
@@ -345,6 +360,8 @@ public class SQLUtilities {
 			if (rs.next()) {
 				toReturn = rs.getString(1);
 			}
+			
+			insertEventLog("GetNameFromAlias", "Got name " + toReturn + " from alias " + alias);
 			
 			//else, toReturn already initialized to -1
 		} catch (SQLException e) {
@@ -390,6 +407,8 @@ public class SQLUtilities {
 			
 			cs.executeQuery();
 			
+			insertEventLog("InsertPlacing", "Added placing for player_id " + player_id + " and tourney_id " + t_id);
+			
 		} catch (SQLException e) {
 			String message = Utility.getBody("insertPlacing", e);
 			String subject = "Error occured in Challonge Elo Parser application!";
@@ -418,6 +437,8 @@ public class SQLUtilities {
 			
 			cs.executeQuery();
 			
+			insertEventLog("InsertMatch", "Added match id " + m.match_id);
+			
 		} catch (SQLException e) {
 			String message = Utility.getBody("insertMatch", e);
 			String subject = "Error occured in Challonge Elo Parser application!";
@@ -445,6 +466,8 @@ public class SQLUtilities {
 				toReturn = rs.getInt(1);
 			}
 			
+			insertEventLog("GetElo", "Got elo for player_id " + id);
+			
 			//else, toReturn already initialized to -1
 		} catch (SQLException e) {
 			//should be caught by next
@@ -464,6 +487,8 @@ public class SQLUtilities {
 			cs.setInt(2, newElo);
 			
 			cs.executeQuery();
+			
+			insertEventLog("SetElo", "Set the new elo for player " + id + " to be " + newElo);
 			
 		} catch (SQLException e) {
 			String message = Utility.getBody("setElo", e);
@@ -502,6 +527,8 @@ public class SQLUtilities {
 			
 			toReturn = tempList.toArray(toReturn);
 			
+			insertEventLog("GetEmptyPlayers", "Got all players with no match records in the db.");
+			
 			//else, toReturn already initialized to -1
 		} catch (SQLException e) {
 			//should be caught by next
@@ -530,6 +557,8 @@ public class SQLUtilities {
 			}
 			
 			toReturn = tempList.toArray(toReturn);
+			
+			insertEventLog("GetAliases", "Got all aliases for name " + name);
 			
 			//else, toReturn already initialized to -1
 		} catch (SQLException e) {
@@ -563,6 +592,8 @@ public class SQLUtilities {
 			cs.executeQuery();
 			cs1.executeQuery();
 			cs2.executeQuery();
+			
+			insertEventLog("DeletePlayer", "Deleted player with id " + player_id);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -598,6 +629,8 @@ public class SQLUtilities {
 			
 			toReturn = tempList.toArray(toReturn);
 			
+			insertEventLog("GetMatches", "Got all matches for player_id " + playerID);
+			
 			//else, toReturn already initialized to -1
 		} catch (SQLException e) {
 			//should be caught by next
@@ -616,17 +649,19 @@ public class SQLUtilities {
 	 * 
 	 * Sort of merges all records from oldId into playerID
 	 */
-	public void updatePlayerId(int oldId, int playerID) {
+	public void updatePlayerId(int oldId, int playerId) {
 		try {
 			CallableStatement cs = conn.prepareCall("{call UpdatePlayerId(?, ?)}");
 			cs.setInt(1, oldId);
-			cs.setInt(2, playerID);
+			cs.setInt(2, playerId);
 			
 			cs.executeQuery();
 			
 			//once all associated records are fixed, remove the old player
 			//player cannot be fixed with rest of updates, will result in duplicate id
 			deletePlayer(oldId);
+			
+			insertEventLog("UpdatePlayerId", "Updated player_id " + oldId + " to be merged with " + playerId);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -642,8 +677,39 @@ public class SQLUtilities {
 			cs.setString(2, newName);
 			
 			cs.executeQuery();
+			
+			insertEventLog("UpdateAliasReferences", "Set all aliases previously referring to " + oldName + " to now refer to " + newName);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	//TODO
+	//all event logs should log the start of the method, the parameters, and the output of the method, as well as the time to complete
+	//the request
+	//add columns in, out, and timeToComplete (set starts to null, never completes to -1).
+	//all failed methods found by selecting for -1
+	//whenever add an event log with time -1, except when expecting, add an error log
+	/*
+	 * Insert a new event log at the current time.
+	 */
+	public void insertEventLog(String method, String message) {
+		java.util.Date temp = new java.util.Date(); //current time
+		java.sql.Date date = new java.sql.Date(temp.getTime());
+		
+		try {
+			CallableStatement cs = conn.prepareCall("{call InsertEventLog(?, ?, ?)}");
+			cs.setDate(1, date);
+			cs.setString(2, method);
+			cs.setString(3, message);
+			
+			cs.executeQuery();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void insertErrorLog(String method, String message, Exception e) {
+		//TODO
 	}
 }
