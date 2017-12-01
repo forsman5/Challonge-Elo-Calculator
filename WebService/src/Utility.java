@@ -121,4 +121,22 @@ public class Utility {
 		
 		return mess;
 	}
+	
+	/*
+	 * Gets the body of an email to send.
+	 * 
+	 * In this overloaded method version, no exception is needed.
+	 */
+	public static String getBody(String method, String otherInfo) {
+		String mess = "";
+		
+		//get current time
+		DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+		Date date = new Date();
+		
+		mess += "Error occured in method: " + method + ", at " + dateFormat.format(date) + "\n";
+		mess += "Additional information provided by program includes: " + otherInfo + "\n";
+		
+		return mess;
+	}
 }

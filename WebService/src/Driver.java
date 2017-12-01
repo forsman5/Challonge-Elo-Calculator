@@ -138,6 +138,7 @@ public class Driver {
 		ArrayList<JSONObject> allJson = new ArrayList<JSONObject>();
 		if (json == null) {
 			//bad api key??
+			Utility.sendEmail(ERROR_ALERT_DESTINATION, ERROR_ALERT_ORIGINATION, "Bad request in Challonge Elo Parser", Utility.getBody("getTournaments", "Potential bad API Key?"));
 			json = new JSONArray();
 		}
 		
