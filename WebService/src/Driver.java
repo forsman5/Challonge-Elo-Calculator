@@ -136,6 +136,10 @@ public class Driver {
 		JSONArray json = executeRequestArr(reqUrl);
 		
 		ArrayList<JSONObject> allJson = new ArrayList<JSONObject>();
+		if (json == null) {
+			//bad api key??
+			json = new JSONArray();
+		}
 		
 		for (int i = 0; i < json.length(); i++ ) {
 			allJson.add(json.getJSONObject(i).getJSONObject("tournament"));
@@ -146,6 +150,11 @@ public class Driver {
 			String subUrl = reqUrl + "&subdomain=" + s;
 			
 			JSONArray subJson = executeRequestArr(subUrl);
+			
+			//avoiding null pointer exceptions
+			if (subJson == null) {
+				subJson = new JSONArray();
+			}
 			
 			/*
 			 * Adding all json objects from the subdomain response into the main
