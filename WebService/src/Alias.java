@@ -35,24 +35,72 @@ public class Alias {
 		ArrayList<AliasRecord> aliases = getAliases(source);
 		
 		//open file for writing (appending)
+		FileWriter fw = null;
+		BufferedWriter writer = null;
+		
+		try {
+			fw = new FileWriter(store, true);
+			writer = new BufferedWriter(fw);
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
 		
 		for (AliasRecord a : aliases) {
-			sql.insertAlias(a.name, a.alias);
-			
-			//append the data to the old file
-			try {
-				//open to append
-				FileWriter fw = new FileWriter(store, true);
-				BufferedWriter writer = new BufferedWriter(fw);
-
-				writer.write(a.name + ":" + a.alias + "\n");
-
-				writer.close();
-				fw.close();
-			} catch (IOException e) {
-				//should not occur...
-				e.printStackTrace();
+			//ensure this does not exist already
+			if (!sql.getNameFromAlias(a.alias).equals(a.name)) {
+				//find if both players exist
+				//first player must exist, if doesnt, is created by getAliases
+				int secondId = sql.getIDFromAlias(a.alias);
+				
+				if (secondId != -1) {
+					//other record exists -- must be reconciled
+					int firstId = sql.getPlayerID(a.name);
+					
+					int firstElo = sql.getElo(firstId);
+					int secondElo = sql.getElo(secondId);
+					
+					int matchesOne = sql.getMatches(firstId).length;
+					int matchesTwo = sql.getMatches(secondId).length;
+					
+					sql.updatePlayerId(secondId, firstId);
+					sql.updateAliasReference(a.alias, a.name);
+					
+					double ratioOne = matchesOne / (matchesOne + matchesTwo);
+					double ratioTwo = 1 - ratioOne;
+					
+					//TODO
+					//figure out a better way to do this
+					//recalc is probably too long to do regularly, should keep a count of number of times this is done and
+					//email admin after x times, then allow an admin to initiate a manual recalc
+					//for now, the new elo for the player is updated simply by weighting the old elos by number of matches played.
+					int newElo = (int) Math.round(firstElo * ratioOne + secondElo * ratioTwo);
+					
+					sql.setElo(firstId, newElo);
+	
+				}
+				
+				//perform the rest of the code in both cases
+				
+				sql.insertAlias(a.name, a.alias);
+				
+				//append the data to the old file
+				try {
+					writer.write(a.name + ":" + a.alias + "\n");
+				} catch (IOException e) {
+					//should not occur...
+					e.printStackTrace();
+				}
 			}
+			
+			//else, do nothing with this record
+		}
+		
+		//prevent memory leaks
+		try {
+			writer.close();
+			fw.close();
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 	

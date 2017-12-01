@@ -567,4 +567,83 @@ public class SQLUtilities {
 			e.printStackTrace();
 		}
 	}
+
+	/*
+	 * Return every match, in an array, with the given playerId
+	 */
+	public Match[] getMatches(int playerID) {
+		Match[] toReturn = new Match[] {};
+		
+		try {
+			CallableStatement cs = conn.prepareCall("{call getMatches(?)}");
+			cs.setInt(1, playerID);
+			
+			ResultSet rs = cs.executeQuery();
+			
+			ArrayList<Match> tempList = new ArrayList<>();
+			
+			while (rs.next()) {
+				Match m = new Match();
+				
+				//creating match from results
+				m.match_id = rs.getInt(1);
+				m.winner_id = rs.getInt(2);
+				m.loser_id = rs.getInt(3);
+				m.winner_score = rs.getInt(4);
+				m.loser_score = rs.getInt(5);
+				m.tourney_id = rs.getInt(6);
+				
+				tempList.add(m);
+			}
+			
+			toReturn = tempList.toArray(toReturn);
+			
+			//else, toReturn already initialized to -1
+		} catch (SQLException e) {
+			//should be caught by next
+			
+			//if something breaks, empty array is still returned
+			e.printStackTrace();
+		}
+		
+		return toReturn;
+	}
+
+	/*
+	 * Switch every instance of the oldId to the playerId provided.
+	 * 
+	 * This will also delete the player record of the oldId once everything has been switched.
+	 * 
+	 * Sort of merges all records from oldId into playerID
+	 */
+	public void updatePlayerId(int oldId, int playerID) {
+		try {
+			CallableStatement cs = conn.prepareCall("{call UpdatePlayerId(?, ?)}");
+			cs.setInt(1, oldId);
+			cs.setInt(2, playerID);
+			
+			cs.executeQuery();
+			
+			//once all associated records are fixed, remove the old player
+			//player cannot be fixed with rest of updates, will result in duplicate id
+			deletePlayer(oldId);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
+	/*
+	 * Force every alias record that referred to oldName before, now to refer to newName
+	 */
+	public void updateAliasReference(String oldName, String newName) {
+		try {
+			CallableStatement cs = conn.prepareCall("{call UpdateAliasReferences(?, ?)}");
+			cs.setString(1, oldName);
+			cs.setString(2, newName);
+			
+			cs.executeQuery();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
 }
