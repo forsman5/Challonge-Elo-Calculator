@@ -170,4 +170,15 @@ public class SQLUtilitiesTest {
 		
 		assertEquals("Sahil K", returned);
 	}
+	
+	@Test
+	public void testLog() {
+		Settings settings = new Settings();
+		
+		SQLUtilities sql = new SQLUtilities(settings);
+		
+		sql.startLog("Test", "nil", "nil");
+		
+		sql.stopLog("Test", "nil", "nil", "nil");
+	}
 }

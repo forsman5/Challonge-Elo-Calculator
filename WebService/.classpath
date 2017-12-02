@@ -10,5 +10,6 @@
 	<classpathentry kind="lib" path="C:/Users/Joe/Desktop/Projects/PowellSmashRankings Git/PowellSmashRankings/WebService/libs/mysql-connector-java-5.1.44-bin.jar"/>
 	<classpathentry kind="lib" path="C:/Users/Joe/Desktop/Projects/PowellSmashRankings Git/PowellSmashRankings/WebService/libs/activation.jar"/>
 	<classpathentry kind="lib" path="C:/Users/Joe/Desktop/Projects/PowellSmashRankings Git/PowellSmashRankings/WebService/libs/javax.mail.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Joe/Desktop/Projects/PowellSmashRankings Git/PowellSmashRankings/WebService/libs/commons-lang3-3.7.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

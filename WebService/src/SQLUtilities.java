@@ -4,24 +4,37 @@ import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Stack;
+
+import org.apache.commons.lang3.time.StopWatch;
 
 /*
  * Class to mock the jdbc driver, and to connect to the mysql implementation.
  * 
  * All sql interactions must come through here.
- * 
- * TODO
- * Add logging for every entry added
  */
 public class SQLUtilities {
+	/*
+	 * magic numbers that are inserted into the database.
+	 * 
+	 * FAILURE_TIME_CODE is saved in the time elapsed field of logs when an error occurs
+	 * BEGIN_TIME_CODE is saved in the time elapsed field of the logs when an action is begun
+	 */
+	private final int FAILURE_TIME_CODE = -1;
+	private final int BEGIN_TIME_CODE = -2;
 	
 	private Connection conn = null;
 	
 	private String ERROR_ALERT_DESTINATION;
 	private String[] ERROR_ALERT_ORIGINATION;
+	
+	//stopwatch used to count number of seconds between each action
+	//used for logging
+	private Stack<StopWatch> watches;
 	
 	/*
 	 * Constructor. Initializes this as the driver for the JDBC of mysql
@@ -42,6 +55,8 @@ public class SQLUtilities {
 		}
 		
         conn = getConnection(settings.getString("DATABASE_NAME"), settings.getString("DATABASE_USERNAME"), settings.getString("DATABASE_PASSWORD"));
+        
+        watches = new Stack<StopWatch>();
 	}
 	
 	/*
@@ -62,6 +77,8 @@ public class SQLUtilities {
 		}
 		
         conn = getConnection(settings.getString("DATABASE_NAME"), settings.getString("DATABASE_USERNAME"), settings.getString("DATABASE_PASSWORD"));
+        
+        watches = new Stack<StopWatch>();
 	}	
 	
 	/*
@@ -101,6 +118,8 @@ public class SQLUtilities {
 	public String getLastCheckedDate() {
 		Date out = null;
 		
+		startLog("GetLastCheckedDate", "nil", "nil");
+		
 		try {
 			CallableStatement cs = conn.prepareCall("{call GetLatestTourneyDate()}");
 			
@@ -119,8 +138,10 @@ public class SQLUtilities {
 				out = Date.valueOf("1970-01-01");
 			}
 			
-			insertEventLog("GetLastCheckedDate", "Found last checked date to be " + out);
+			stopLog("GetLastCheckedDate", "nil", out.toString(), "nil");
 		} catch (SQLException e) {
+			errorLog("GetLastCheckedDate", "nil", e);
+			
 			//should be caught by next
 			e.printStackTrace();
 		}
@@ -135,6 +156,8 @@ public class SQLUtilities {
 	 * 	Tournament ID must be unique in the database.
 	 */
 	public void insertTournament(Tournament x) {
+		startLog("InsertTournament", "" + x.id, "nil");
+		
 		try {
 			CallableStatement cs = conn.prepareCall("{call InsertTournament(?, ?, ?, ?)}");
 			
@@ -146,13 +169,7 @@ public class SQLUtilities {
 			try {
 				cs.setDate(2, new java.sql.Date(textFormat.parse(x.dateStarted).getTime()));
 			} catch (java.text.ParseException e) {
-				String message = Utility.getBody("insertTournament", e, "Tournament contained an invalid date. Tournament: " + x.name + ", date: " + x.dateStarted);
-				String subject = "Error occured in Challonge Elo Parser application!";
-				
-				Utility.sendEmail(ERROR_ALERT_DESTINATION, ERROR_ALERT_ORIGINATION, subject, message);
-				
-				//remove for production
-				e.printStackTrace();
+				errorLog("InsertTournament", "" + x.id, "Tournament contained an invalid date. Tournament: " + x.name + ", date: " + x.dateStarted, e);
 			}
 					
 			cs.setString(3, x.name);
@@ -160,16 +177,9 @@ public class SQLUtilities {
 			
 			cs.executeQuery();
 			
-			insertEventLog("InsertTournament", "Added tournament with tourney_id " + x.id);
-			
+			stopLog("InsertTournament", "" + x.id, "nil", "null");
 		} catch (SQLException e) {
-			String message = Utility.getBody("insertTournament", e);
-			String subject = "Error occured in Challonge Elo Parser application!";
-			
-			Utility.sendEmail(ERROR_ALERT_DESTINATION, ERROR_ALERT_ORIGINATION, subject, message);
-			
-			//remove for production
-			e.printStackTrace();
+			errorLog("InsertTournament", ""+x.id, e);
 		}
 	}
 
@@ -178,6 +188,8 @@ public class SQLUtilities {
 	 */
 	public String getPlayerName(int id) {
 		String toReturn = "null";
+
+		startLog("GetPlayerName", "" + id, "nil");
 		
 		try {
 			CallableStatement cs = conn.prepareCall("{call GetPlayerName(?)}");
@@ -189,12 +201,14 @@ public class SQLUtilities {
 				toReturn = rs.getString(1);
 			}
 			
-			insertEventLog("GetPlayerName", "Got player name " + toReturn + " from player_id " + id);
-			
 			//else, toReturn already initialized to -1
+			
+			stopLog("GetPlayerName", "" + id, toReturn, "nil");
 		} catch (SQLException e) {
 			//should be caught by next
 			e.printStackTrace();
+			
+			errorLog("GetPlayerName", "" + id, e);
 		}
 		
 		return toReturn;
@@ -207,6 +221,8 @@ public class SQLUtilities {
 	 * 	player ID must be unique in the database.
 	 */
 	public void insertPlayer(Player toAdd) {
+		startLog("InsertPlayer", "" + toAdd.player_id, "Inserting player with id " + toAdd.player_id + " and more attached info..");
+		
 		try {
 			CallableStatement cs = conn.prepareCall("{call InsertPlayer(?, ?, ?)}");
 			
@@ -217,24 +233,18 @@ public class SQLUtilities {
 			
 			cs.executeQuery();
 			
-			insertEventLog("InsertPlayer", "Added player with id " + toAdd.player_id);
-			
+			stopLog("InsertPlayer", "" + toAdd.player_id, "nil", "nil");
 		} catch (SQLException e) {
-			String message = Utility.getBody("insertPlayer", e);
-			String subject = "Error occured in Challonge Elo Parser application!";
-			
-			Utility.sendEmail(ERROR_ALERT_DESTINATION, ERROR_ALERT_ORIGINATION, subject, message);
-			
-			//remove for production
-			e.printStackTrace();
+			errorLog("InsertPlayer", "" + toAdd.player_id, e);
 		}
-		
 	}
 
 	/*
 	 * Inserts the given alias into the database.
 	 */
 	public void insertAlias(String name, String alias) {
+		startLog("InsertAlias", alias, "Alias: " + alias + " Name: " + name);
+		
 		try {
 			CallableStatement cs = conn.prepareCall("{call InsertAlias(?, ?)}");
 			
@@ -244,16 +254,10 @@ public class SQLUtilities {
 			
 			cs.executeQuery();
 			
-			insertEventLog("InsertAlias", "Added alias with name " + name + " and alias " + alias);
+			stopLog("InsertAlias", alias, "nil", "Alias: " + alias + " Name: " + name);
 			
 		} catch (SQLException e) {
-			String message = Utility.getBody("insertAlias", e);
-			String subject = "Error occured in Challonge Elo Parser application!";
-			
-			Utility.sendEmail(ERROR_ALERT_DESTINATION, ERROR_ALERT_ORIGINATION, subject, message);
-			
-			//remove for production
-			e.printStackTrace();
+			errorLog("InsertAlias", alias, "Alias: " + alias + " Name: " + name, e);
 		}
 	}
 	
@@ -264,6 +268,7 @@ public class SQLUtilities {
 	 */
 	public int getPlayerID(String name) {
 		int toReturn = -1;
+		startLog("GetPlayerID", name, "nil");
 		
 		try {
 			CallableStatement cs = conn.prepareCall("{call GetPlayerID(?)}");
@@ -275,12 +280,14 @@ public class SQLUtilities {
 				toReturn = rs.getInt(1);
 			}
 			
-			insertEventLog("GetPlayerID", "Got player ID " + toReturn + " from name " + name);
+			stopLog("GetPlayerID", name, "" + toReturn, "nil");
 			
 			//else, toReturn already initialized to -1
 		} catch (SQLException e) {
 			//should be caught by next
 			e.printStackTrace();
+			
+			errorLog("GetPlayerID", name, e);
 		}
 		
 		return toReturn;
@@ -294,6 +301,8 @@ public class SQLUtilities {
 	public void insertPlayerByName(String name) {
 		//create a player to invoke the constructor
 		
+		startLog("InsertPlayerByName", name, "nil");
+		
 		Player toInsert = new Player();
 		toInsert.name = name;
 		
@@ -306,16 +315,10 @@ public class SQLUtilities {
 			
 			cs.executeQuery();
 			
-			insertEventLog("InsertPlayerByName", "Inserted a new player with the name " + name);
+			stopLog("InsertPlayerByName", name, "nil", "nil");
 			
 		} catch (SQLException e) {
-			String message = Utility.getBody("insertPlayerByName", e);
-			String subject = "Error occured in Challonge Elo Parser application!";
-			
-			Utility.sendEmail(ERROR_ALERT_DESTINATION, ERROR_ALERT_ORIGINATION, subject, message);
-			
-			//remove for production
-			e.printStackTrace();
+			errorLog("InsertPlayerByName", name, e);
 		}
 	}
 
@@ -325,6 +328,8 @@ public class SQLUtilities {
 	 * Returns -1 if this ID is never found
 	 */
 	public int getIDFromAlias(String name) {
+		startLog("GetIDFromAlias", name, "nil");
+		
 		int id = getPlayerID(name);
 		
 		if (id == -1) {
@@ -334,8 +339,9 @@ public class SQLUtilities {
 				id = getPlayerID(trueName);
 			}
 			
+			stopLog("GetIDFromAlias", name, "" + id, "nil");
+			
 			//else do nothing, id remains -1
-			insertEventLog("GetIDFromAlias", "Got id " + id + " from alias " + name);
 		}
 		
 		//else do nothing, return the original id
@@ -349,6 +355,8 @@ public class SQLUtilities {
 	 * Returns "null" if nothing found.
 	 */
 	public String getNameFromAlias(String alias) {
+		startLog("GetNameFromAlias", alias, "nil");
+		
 		String toReturn = "null";
 		
 		try {
@@ -361,12 +369,14 @@ public class SQLUtilities {
 				toReturn = rs.getString(1);
 			}
 			
-			insertEventLog("GetNameFromAlias", "Got name " + toReturn + " from alias " + alias);
+			stopLog("GetNameFromAlias", alias, toReturn, "nil");
 			
 			//else, toReturn already initialized to -1
 		} catch (SQLException e) {
 			//should be caught by next
 			e.printStackTrace();
+			
+			errorLog("GetNameFromAlias", alias, e);
 		}
 		
 		return toReturn;
@@ -377,26 +387,29 @@ public class SQLUtilities {
 	 * 
 	 * WARNING - ALL DATA WILL BE LOST
 	 */
-	public void wipeTables() {		
+	public void wipeTables() {
+		// no startlog -- tables will be wiped immediately after starting
+		StopWatch tempWatch = new StopWatch();
+		tempWatch.start();
+		watches.push(tempWatch);
+		
 		try {
 			CallableStatement cs = conn.prepareCall("{call CreateTables()}");
 			
 			cs.executeQuery();
 		} catch (SQLException e) {
-			String message = Utility.getBody("wipeTables", e, "Perhaps the stored procedure doesn't exist?");
-			String subject = "Error occured in Challonge Elo Parser application!";
-			
-			Utility.sendEmail(ERROR_ALERT_DESTINATION, ERROR_ALERT_ORIGINATION, subject, message);
-			
-			//remove for production
-			e.printStackTrace();
+			errorLog("WipeTables", "nil", e);
 		}
+		
+		stopLog("WipeTables", "nil", "nil", "nil");
 	}
 	
 	/*
 	 * Create a new placing record in the database.
 	 */
 	public void insertPlacing(int player_id, int t_id, int final_placing) {
+		startLog("InsertPlacing", "" + player_id, "Inserting placing for player_id " + player_id + " and tourney_id " + t_id);
+		
 		try {
 			CallableStatement cs = conn.prepareCall("{call InsertPlacing(?, ?, ?)}");
 			
@@ -407,16 +420,10 @@ public class SQLUtilities {
 			
 			cs.executeQuery();
 			
-			insertEventLog("InsertPlacing", "Added placing for player_id " + player_id + " and tourney_id " + t_id);
+			stopLog("InsertPlacing", "" + player_id, "nil", "Inserted placing for player_id " + player_id + " and tourney_id " + t_id);
 			
 		} catch (SQLException e) {
-			String message = Utility.getBody("insertPlacing", e);
-			String subject = "Error occured in Challonge Elo Parser application!";
-			
-			Utility.sendEmail(ERROR_ALERT_DESTINATION, ERROR_ALERT_ORIGINATION, subject, message);
-			
-			//remove for production
-			e.printStackTrace();
+			errorLog("InsertPlacing", "" + player_id, "Failed inserting placing for player_id " + player_id + " and tourney_id " + t_id + "...", e);
 		}
 	}
 
@@ -424,6 +431,8 @@ public class SQLUtilities {
 	 * Create a new match record in the database.
 	 */
 	public void insertMatch(Match m) {
+		startLog("InsertMatch", "" + m.match_id, "nil");
+		
 		try {
 			CallableStatement cs = conn.prepareCall("{call InsertMatch(?, ?, ?, ?, ?, ?)}");
 			
@@ -437,16 +446,10 @@ public class SQLUtilities {
 			
 			cs.executeQuery();
 			
-			insertEventLog("InsertMatch", "Added match id " + m.match_id);
+			stopLog("InsertMatch", "" + m.match_id, "nil", "nil");
 			
 		} catch (SQLException e) {
-			String message = Utility.getBody("insertMatch", e);
-			String subject = "Error occured in Challonge Elo Parser application!";
-			
-			Utility.sendEmail(ERROR_ALERT_DESTINATION, ERROR_ALERT_ORIGINATION, subject, message);
-			
-			//remove for production
-			e.printStackTrace();
+			errorLog("InsertMatch", "" + m.match_id, e);
 		}
 	}
 
@@ -455,6 +458,8 @@ public class SQLUtilities {
 	 */
 	public int getElo(int id) {
 		int toReturn = -1;
+		
+		startLog("GetElo", "" + id, "nil");
 		
 		try {
 			CallableStatement cs = conn.prepareCall("{call GetElo(?)}");
@@ -466,12 +471,15 @@ public class SQLUtilities {
 				toReturn = rs.getInt(1);
 			}
 			
-			insertEventLog("GetElo", "Got elo for player_id " + id);
+			stopLog("GetElo", "" + id, "" + toReturn, "nil");
 			
 			//else, toReturn already initialized to -1
 		} catch (SQLException e) {
 			//should be caught by next
 			e.printStackTrace();
+			
+			errorLog("GetElo", "" + id, e);
+			
 		}
 		
 		return toReturn;
@@ -481,6 +489,8 @@ public class SQLUtilities {
 	 * Record the elo value associated with this player_id
 	 */
 	public void setElo(int id, int newElo) {
+		startLog("SetElo", "" + id, "Set the new elo for player " + id + " to be " + newElo);
+		
 		try {
 			CallableStatement cs = conn.prepareCall("{call SetElo(?, ?)}");
 			cs.setInt(1, id);
@@ -488,16 +498,9 @@ public class SQLUtilities {
 			
 			cs.executeQuery();
 			
-			insertEventLog("SetElo", "Set the new elo for player " + id + " to be " + newElo);
-			
+			stopLog("SetElo", "" + id, "nil", "Set the new elo for player " + id + " to be " + newElo);
 		} catch (SQLException e) {
-			String message = Utility.getBody("setElo", e);
-			String subject = "Error occured in Challonge Elo Parser application!";
-			
-			Utility.sendEmail(ERROR_ALERT_DESTINATION, ERROR_ALERT_ORIGINATION, subject, message);
-			
-			//remove for production
-			e.printStackTrace();
+			errorLog("SetElo", "" + id, "Set the new elo for player " + id + " to be " + newElo, e);
 		}
 	}
 
@@ -506,6 +509,8 @@ public class SQLUtilities {
 	 * their relevant player_id in the match table of the database.
 	 */
 	public Player[] getEmptyPlayers() {
+		startLog("GetEmptyPlayers", "nil", "nil");
+		
 		Player[] toReturn = new Player[] {};
 		
 		try {
@@ -527,12 +532,19 @@ public class SQLUtilities {
 			
 			toReturn = tempList.toArray(toReturn);
 			
-			insertEventLog("GetEmptyPlayers", "Got all players with no match records in the db.");
+			String temp = "Empty array";
+			if (toReturn.length > 0)  {
+				temp = "Array, first element is player with player_id " + toReturn[0].player_id;
+			}
+			
+			stopLog("GetEmptyPlayers", "nil", temp, "nil");
 			
 			//else, toReturn already initialized to -1
 		} catch (SQLException e) {
 			//should be caught by next
 			e.printStackTrace();
+			
+			errorLog("GetEmptyPlayers", "nil", e);
 		}
 		
 		return toReturn;
@@ -542,6 +554,8 @@ public class SQLUtilities {
 	 * Get an array of every alias attached to the given name present in the aliases datatable.
 	 */
 	public String[] getAliases(String name) {
+		startLog("GetAliases", name, "nil");
+		
 		String[] toReturn = new String[] {};
 		
 		try {
@@ -558,12 +572,19 @@ public class SQLUtilities {
 			
 			toReturn = tempList.toArray(toReturn);
 			
-			insertEventLog("GetAliases", "Got all aliases for name " + name);
+			String temp = "Empty array";
+			if (toReturn.length > 0)  {
+				temp = "Array, first element is " + toReturn[0];
+			}
+			
+			stopLog("GetAliases", name, temp, "nil");
 			
 			//else, toReturn already initialized to -1
 		} catch (SQLException e) {
 			//should be caught by next
 			e.printStackTrace();
+			
+			errorLog("GetAliases", name, e);
 		}
 		
 		return toReturn;
@@ -578,6 +599,8 @@ public class SQLUtilities {
 	 * recalculation.
 	 */
 	public void deletePlayer(int player_id) {
+		startLog("DeletePlayer", "" + player_id, "nil");
+		
 		try {
 			//these are not exposed individually
 			//if they were, possible that theres leftover match records with no players attached..
@@ -593,21 +616,25 @@ public class SQLUtilities {
 			cs1.executeQuery();
 			cs2.executeQuery();
 			
-			insertEventLog("DeletePlayer", "Deleted player with id " + player_id);
+			stopLog("DeletePlayer", "" + player_id, "nil", "nil");
 		} catch (SQLException e) {
 			e.printStackTrace();
+			
+			errorLog("DeletePlayer", "" + player_id, e);
 		}
 	}
 
 	/*
 	 * Return every match, in an array, with the given playerId
 	 */
-	public Match[] getMatches(int playerID) {
+	public Match[] getMatches(int playerId) {
+		startLog("GetMatches", "" + playerId, "nil");
+		
 		Match[] toReturn = new Match[] {};
 		
 		try {
 			CallableStatement cs = conn.prepareCall("{call getMatches(?)}");
-			cs.setInt(1, playerID);
+			cs.setInt(1, playerId);
 			
 			ResultSet rs = cs.executeQuery();
 			
@@ -629,7 +656,12 @@ public class SQLUtilities {
 			
 			toReturn = tempList.toArray(toReturn);
 			
-			insertEventLog("GetMatches", "Got all matches for player_id " + playerID);
+			String temp = "Empty array";
+			if (toReturn.length > 0)  {
+				temp = "Array, first element is match with match_id " + toReturn[0].match_id;
+			}
+			
+			stopLog("GetMatches", "" + playerId, temp, "nil");
 			
 			//else, toReturn already initialized to -1
 		} catch (SQLException e) {
@@ -637,6 +669,8 @@ public class SQLUtilities {
 			
 			//if something breaks, empty array is still returned
 			e.printStackTrace();
+			
+			errorLog("GetMatches", "" + playerId, e);
 		}
 		
 		return toReturn;
@@ -650,6 +684,8 @@ public class SQLUtilities {
 	 * Sort of merges all records from oldId into playerID
 	 */
 	public void updatePlayerId(int oldId, int playerId) {
+		startLog("UpdatePlayerId", "" + oldId, "Updating player_id " + oldId + " to be merged with " + playerId);
+		
 		try {
 			CallableStatement cs = conn.prepareCall("{call UpdatePlayerId(?, ?)}");
 			cs.setInt(1, oldId);
@@ -660,9 +696,11 @@ public class SQLUtilities {
 			//once all associated records are fixed, remove the old player
 			//player cannot be fixed with rest of updates, will result in duplicate id
 			deletePlayer(oldId);
-			
-			insertEventLog("UpdatePlayerId", "Updated player_id " + oldId + " to be merged with " + playerId);
+
+			stopLog("UpdatePlayerId", "" + oldId, "nil", "Updated player_id " + oldId + " to be merged with " + playerId);
 		} catch (SQLException e) {
+			errorLog("UpdatePlayerId", "" + oldId, "Updated player_id " + oldId + " to be merged with " + playerId, e);
+			
 			e.printStackTrace();
 		}
 	}
@@ -671,6 +709,8 @@ public class SQLUtilities {
 	 * Force every alias record that referred to oldName before, now to refer to newName
 	 */
 	public void updateAliasReference(String oldName, String newName) {
+		startLog("UpdateAliasReferences", oldName, "Set all aliases previously referring to " + oldName + " to now refer to " + newName);
+		
 		try {
 			CallableStatement cs = conn.prepareCall("{call UpdateAliasReferences(?, ?)}");
 			cs.setString(1, oldName);
@@ -678,30 +718,37 @@ public class SQLUtilities {
 			
 			cs.executeQuery();
 			
-			insertEventLog("UpdateAliasReferences", "Set all aliases previously referring to " + oldName + " to now refer to " + newName);
+			stopLog("UpdateAliasReferences", oldName, "nil", "Set all aliases previously referring to " + oldName + " to now refer to " + newName);
 		} catch (SQLException e) {
 			e.printStackTrace();
+			
+			errorLog("UpdateAliasReferences", oldName, "Set all aliases previously referring to " + oldName + " to now refer to " + newName, e);
 		}
 	}
 	
-	//TODO
-	//all event logs should log the start of the method, the parameters, and the output of the method, as well as the time to complete
-	//the request
-	//add columns in, out, and timeToComplete (set starts to null, never completes to -1).
-	//all failed methods found by selecting for -1
-	//whenever add an event log with time -1, except when expecting, add an error log
 	/*
 	 * Insert a new event log at the current time.
+	 * 
+	 * in: an important in parameter to be recorded. Can be null
+	 * out: result, or description of the returned value
+	 * elapsed: number of milliseconds to complete the call. 
+	 * 		-2 means this is the start of the call
+	 * 		-1 means never completed
+	 * message: any additional information to add
+	 * method: name of method calling
 	 */
-	public void insertEventLog(String method, String message) {
+	private void insertEventLog(String method, String in, String out, int elapsed, String message) {
 		java.util.Date temp = new java.util.Date(); //current time
-		java.sql.Date date = new java.sql.Date(temp.getTime());
+		Timestamp date = new Timestamp(temp.getTime());
 		
 		try {
-			CallableStatement cs = conn.prepareCall("{call InsertEventLog(?, ?, ?)}");
-			cs.setDate(1, date);
+			CallableStatement cs = conn.prepareCall("{call InsertEventLog(?, ?, ?, ?, ?, ?)}");
+			cs.setTimestamp(1, date);
 			cs.setString(2, method);
-			cs.setString(3, message);
+			cs.setString(3, in);
+			cs.setString(4, out);
+			cs.setInt(5, elapsed);
+			cs.setString(6, message);
 			
 			cs.executeQuery();
 		} catch (SQLException e) {
@@ -709,7 +756,97 @@ public class SQLUtilities {
 		}
 	}
 	
-	public void insertErrorLog(String method, String message, Exception e) {
-		//TODO
+	/*
+	 * Insert a log for the starting of a method.
+	 * 
+	 * Requires the watch be reset (by calling an ending log entry (error or otherwise)).
+	 */
+	public void startLog(String method, String in, String message) {
+		StopWatch watch;
+		
+		/*
+		 * One watch is always to be left on the stack
+		 * 
+		 * This is done so that that watch is reusable.
+		 * 
+		 * This is done to avoid creating a new watch for every single call to startLog
+		 * (read: every call to SQLUtilities!!)
+		 * 
+		 * I'm afraid that, since a watch runs on its own thread (presumably), allocating the 
+		 * memory and creating / allocating that thread for every single method call to SQLUtilities
+		 * that doesn't call any other SQLUtilities methods (most of them)
+		 * is too slow and requires too much memory, while repeatedly reusing the top watch on the 
+		 * watches stack is much more efficient.
+		 */
+		if (watches.size() == 1 && !watches.peek().isStarted()) {
+			watch = watches.peek();
+		} else {
+			watch = new StopWatch();
+			watches.push(watch);
+		}
+		
+		watch.start();
+		
+		insertEventLog(method, in, "nil", BEGIN_TIME_CODE, message);
+	}
+	
+	/*
+	 * Log the successful completion of a method.
+	 */
+	public void stopLog(String method, String in, String out, String message) {
+		//See documentation in startLog as to why this is a peek
+		StopWatch watch = watches.peek();
+		
+		watch.stop();
+		
+		insertEventLog(method, in, out, (int) watch.getTime(), message);
+		
+		watch.reset();
+		
+		//other watches are in use
+		if (watches.size() > 1) {
+			watches.pop();
+		}
+	}
+	
+	/*
+	 * Log an error. Appends the exception message onto the message given.
+	 * 
+	 * Will also send an email to the standard address, detailling the error
+	 */
+	public void errorLog(String method, String in, String message, Exception e) {
+		//do nothing with the watch, just clean the stack
+		StopWatch watch = watches.peek();
+		
+		watch.stop();
+		
+		watch.reset();
+		
+		if (watches.size() > 1) {
+			watches.pop();
+		}
+		
+		String body = "";
+
+		//check input
+		if (Utility.isNull(message)) {
+			message = "";
+			body = Utility.getBody(method, e);
+		} else {
+			body = Utility.getBody(method, e, message);
+		}
+		
+		String subject = "Error occured in Challonge Elo Parser application!";
+		
+		Utility.sendEmail(ERROR_ALERT_DESTINATION, ERROR_ALERT_ORIGINATION, subject, body);
+
+		insertEventLog(method, in, "nil", FAILURE_TIME_CODE, message + "Error occured in " + method + ": " + e.getMessage());
+	}
+	
+	/*
+	 * Overload for no custom message
+	 */
+	public void errorLog(String method, String in, Exception e) {
+		errorLog(method, in, "", e);
 	}
 }
