@@ -7,7 +7,7 @@ import org.json.*;
 /**
  * This is the main driver file for the webservice.
  * 
- * More details to follow. TODO
+ * See github.com/forsman5/powellsmashrankings if still confused.
  * 
  * @author Joe Forsman
  *

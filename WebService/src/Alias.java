@@ -68,11 +68,8 @@ public class Alias {
 					double ratioOne = matchesOne / (matchesOne + matchesTwo);
 					double ratioTwo = 1 - ratioOne;
 					
-					//TODO
-					//figure out a better way to do this
-					//recalc is probably too long to do regularly, should keep a count of number of times this is done and
-					//email admin after x times, then allow an admin to initiate a manual recalc
-					//for now, the new elo for the player is updated simply by weighting the old elos by number of matches played.
+					//new elo for unified player is the average of both of the old elos weighted by number of matches played.
+					//cannot be truly fixed without a recalc, which should be exposed to a sys adm console on the webiste
 					int newElo = (int) Math.round(firstElo * ratioOne + secondElo * ratioTwo);
 					
 					sql.setElo(firstId, newElo);

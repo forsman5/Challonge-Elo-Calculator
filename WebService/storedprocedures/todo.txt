@@ -2,3 +2,20 @@ https://docs.djangoproject.com/en/1.11/intro/overview/
 https://docs.djangoproject.com/en/1.11/intro/tutorial01/
 https://hackernoon.com/a-beginners-guide-to-progressive-web-apps-the-frontend-web-424b6d697e35
 https://www.codementor.io/olatundegaruba/nodejs-restful-apis-in-10-minutes-q0sgsfhbd
+
+
+???
+
+#This is a setting to turn on or off the alias suggestion feature.
+#
+#If turned on, it will compare a name which has no records to all the aliases in the database.
+#
+#If it is similar to at one of the aliases, it will be suggested as a possible alias for that player.
+#
+#Similarity is determined if the number of characters in the string that are shared is greater than the 
+#number of different characters. TODO - REVISE?
+#
+#If it is suggested, then TODO
+#send email?
+#save to a new db?
+SUGGEST_ALIAS:false

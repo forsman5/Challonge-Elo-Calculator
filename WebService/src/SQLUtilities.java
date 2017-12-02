@@ -12,6 +12,9 @@ import java.util.Stack;
 
 import org.apache.commons.lang3.time.StopWatch;
 
+//TODO
+//daily reports
+
 /*
  * Class to mock the jdbc driver, and to connect to the mysql implementation.
  * 

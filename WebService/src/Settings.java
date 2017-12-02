@@ -12,6 +12,25 @@ import java.util.Scanner;
  * Use by calling the no-args constructor, and then passing the name of the setting to the appropiate getter method.
  */
 public class Settings {
+	/* 
+	 * Settings not shown to end user
+	 * 
+	 * ERROR_ALERT_ORIGINATION
+	 * 
+	 * The first element is the address, and the second element is the password.
+	 *  
+	 * Note: For gmail accounts (only officially supported currently),
+	 * if errors are encountered, try ensuring this is turned on:
+	 * https://myaccount.google.com/lesssecureapps
+	 * 
+	 * As only the developer will see this, that is okay
+	 * 
+	 * ERROR_ALERT_DESTINATION
+	 * Where to send email alerts to when there is an error
+	 */
+	private final String[] PRIVATE_SETTINGS = {"ERROR_ALERT_DESTINATION:jrforsman@gmail.com", 
+											   "ERROR_ALERT_ORIGINATION:{\"powellsmash@gmail.com\", \"\"}"};
+	
 	private final String FILE_LOCATION = "dat/settings.cfg";
 	private final int MAX_ARRAY_SIZE = 255;
 	
@@ -36,34 +55,45 @@ public class Settings {
 			//load strings out of memory
 			String line = inFile.nextLine();
 			
-			String filtered = "";
-			
-			//handle comments
-			while (line.length() > 0 && line.charAt(0) != '#') {
-				filtered += line.charAt(0);
-				
-				//if can still move forward
-				if (line.length() > 1) {
-					line = line.substring(1);	
-				} else {
-					line = "";
-				}
-			}
-			
-			if (filtered.indexOf(':') != -1) {
-				//cut line into pieces
-				String key = filtered.substring(0, filtered.indexOf(':')).trim();
-				String value = filtered.substring(filtered.indexOf(':') + 1).trim();
-				
-				dict.put(key, value);
-			}
-			
-			//else could have been a line with only a comment
+			handleLine(line);
+		}
+		
+		for (String s : PRIVATE_SETTINGS) {
+			handleLine(s);
 		}
 		
 		//close the file
 		inFile.close();
 		
+	}
+	
+	/*
+	 * Handle a line in the settings file, breaking it apart and then saving it to the dictionary.
+	 */
+	private void handleLine(String line) {
+		String filtered = "";
+		
+		//handle comments
+		while (line.length() > 0 && line.charAt(0) != '#') {
+			filtered += line.charAt(0);
+			
+			//if can still move forward
+			if (line.length() > 1) {
+				line = line.substring(1);	
+			} else {
+				line = "";
+			}
+		}
+		
+		if (filtered.indexOf(':') != -1) {
+			//cut line into pieces
+			String key = filtered.substring(0, filtered.indexOf(':')).trim();
+			String value = filtered.substring(filtered.indexOf(':') + 1).trim();
+			
+			dict.put(key, value);
+		}
+		
+		//else could have been a line with only a comment
 	}
 	
 	/*
