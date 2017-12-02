@@ -487,14 +487,16 @@ public class Driver {
 	private static void filterTournaments(ArrayList<JSONObject> arr, int gameId) {
 		ArrayList<JSONObject> toRemove = new ArrayList<>();
 		
-		//cannot remove while looping based on size
-		for (JSONObject j : arr) {
-			//cannot use get String here
-			//throws an exception if an integer or empty string is encountered... not sure why
-			String gameIdString = j.get("game_id").toString();
-			
-			if (Utility.isNull(gameIdString) || Integer.parseInt(gameIdString) != gameId) {
-				toRemove.add(j);
+		if (gameId != 0) {
+			//cannot remove while looping based on size
+			for (JSONObject j : arr) {
+				//cannot use get String here
+				//throws an exception if an integer or empty string is encountered... not sure why
+				String gameIdString = j.get("game_id").toString();
+				
+				if (Utility.isNull(gameIdString) || Integer.parseInt(gameIdString) != gameId) {
+					toRemove.add(j);
+				}
 			}
 		}
 		

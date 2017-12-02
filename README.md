@@ -32,5 +32,5 @@ populate the database. In order to accomplish this, the backend:
 - All events are logged, with times started and time elapased.
 - Many other relevant settings are available for an end user to select, without having any access to the source code.
 
-##Planned:
+## Planned:
 - Daily reports sent to an end user and a systems administrator from the backend.
