@@ -9,9 +9,6 @@ import org.json.*;
  * 
  * More details to follow. TODO
  * 
- * TODO
- * Filter out player records with no associated (valid) match records.
- * 
  * @author Joe Forsman
  *
  */
@@ -39,30 +36,34 @@ public class Driver {
 		//load last saved date
 		ArrayList<Tournament> tournies = null;
 		
-		tournies = getTournaments(sql, settings);
-		
-		if (tournies == null) {
-			//setting it to an empty list
-			//this means that no execution will continue later, as the list is empty.
-			tournies = new ArrayList<>();
-		}
-		
-		for (Tournament t : tournies) {
-			//get and process players
-			ArrayList<Player> players = getPlayers(t.id, sql, settings);
+		String[] apiKeys = settings.getStringArr("API_KEY");
+	
+		for (String api : apiKeys) {
+			tournies = getTournaments(sql, settings, api); 
 			
-			for (Player p : players) {
-				sql.insertPlacing(p.player_id, t.id, p.final_placing);
+			if (tournies == null) {
+				//setting it to an empty list
+				//this means that no execution will continue later, as the list is empty.
+				tournies = new ArrayList<>();
 			}
 			
-			//get and process matches 
-			ArrayList<Match> matches = getMatches(t.id, settings.getString("API_KEY"));
-			
-			processMatches(matches, players, sql, settings.getInt("KFACTOR"), settings.getBool("ACCOUNT_FOR_SCORES"));
-			
-			//saving any not filtered out
-			for (Match m : matches) {
-				sql.insertMatch(m);
+			for (Tournament t : tournies) {
+				//get and process players
+				ArrayList<Player> players = getPlayers(t.id, sql, settings, api);
+				
+				for (Player p : players) {
+					sql.insertPlacing(p.player_id, t.id, p.final_placing);
+				}
+				
+				//get and process matches 
+				ArrayList<Match> matches = getMatches(t.id, api); 
+				
+				processMatches(matches, players, sql, settings.getInt("KFACTOR"), settings.getBool("ACCOUNT_FOR_SCORES"));
+				
+				//saving any not filtered out
+				for (Match m : matches) {
+					sql.insertMatch(m);
+				}
 			}
 		}
 		
@@ -127,11 +128,11 @@ public class Driver {
 	 * 
 	 * All new tournaments that are returned are automatically saved to the database.
 	 */
-	public static ArrayList<Tournament> getTournaments(SQLUtilities sql, Settings settings) {
+	public static ArrayList<Tournament> getTournaments(SQLUtilities sql, Settings settings, String api) {
 		String createdAfter = sql.getLastCheckedDate();
 		
 		//for most tournaments
-		String reqUrl = "https://api.challonge.com/v1/tournaments.json?state=ended&api_key=" + settings.getString("API_KEY") + "&created_after="+createdAfter;
+		String reqUrl = "https://api.challonge.com/v1/tournaments.json?state=ended&api_key=" + api + "&created_after="+createdAfter;
 		
 		JSONArray json = executeRequestArr(reqUrl);
 		
@@ -204,8 +205,8 @@ public class Driver {
 	 * 
 	 * sql used to find the true player_id (matching records)
 	 */
-	public static ArrayList<Player> getPlayers(int tId, SQLUtilities sql, Settings settings) {
-		String url = "https://api.challonge.com/v1/tournaments/"+tId+"/participants.json?api_key=" + settings.getString("API_KEY");
+	public static ArrayList<Player> getPlayers(int tId, SQLUtilities sql, Settings settings, String api) {
+		String url = "https://api.challonge.com/v1/tournaments/"+tId+"/participants.json?api_key=" + api;
 		JSONArray json = executeRequestArr(url);
 		
 		filterPlayers(json, settings);
@@ -476,10 +477,6 @@ public class Driver {
 	 * 
 	 * It is an array of nameless JSONObjects, each with one nested JSONObject which is what
 	 * is actually desired.
-	 * 
-	 * TODO:
-	 * Eventually, remove all dependency on Match.java and Tournament.java, only use JSONObjects (I think?
-	 * Would this be better?)
 	 */
 	
 	/*
@@ -583,6 +580,8 @@ public class Driver {
 		try {
 			response = client.newCall(request).execute();
 		} catch (IOException e) {
+			//TODO
+			//use the error logging here
 			String message = Utility.getBody("executeRequest", e, "Probable cause: Bad request.\n" + request.toString());
 			String subject = "Error occured in Challonge Elo Parser application!";
 			
