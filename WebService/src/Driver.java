@@ -77,7 +77,11 @@ public class Driver {
 			//get array of addresses together
 			String[] dests = new String[] { ERROR_ALERT_DESTINATION, settings.getString("ADMINISTRATOR_DESTINATION") };
 			
-			sendReport(dests, ERROR_ALERT_ORIGINATION, getReport(sql));
+			String report = getReport(sql);
+			
+			if (!Utility.isNull(report)) {
+				sendReport(dests, ERROR_ALERT_ORIGINATION, getReport(sql));	
+			}
 		}
 	}	
 
@@ -665,13 +669,17 @@ public class Driver {
 		
 		Map<String, Integer> methodCounts = sql.getDailyMethodCounts();
 		
-		for (String method : methodCounts.keySet()) {
-			int count = methodCounts.get(method);
+		if (methodCounts.size() == 0) {
+			report = "null";
+		} else {
+			for (String method : methodCounts.keySet()) {
+				int count = methodCounts.get(method);
+				
+				report += method + ": " + count + "\n";
+			}
 			
-			report += method + ": " + count + "\n";
+			report += "add error reporting here??\n\nQuestions? Reply to this email!\n\nThanks for using Challonge Elo Parser! Have a good day!";
 		}
-		
-		report += "add error reporting here??\n\nQuestions? Reply to this email!\n\nThanks for using Challonge Elo Parser! Have a good day!";
 		
 		return report;
 	}
