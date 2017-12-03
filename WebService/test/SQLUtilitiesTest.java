@@ -1,5 +1,7 @@
 import static org.junit.Assert.*;
 
+import java.util.Map;
+
 import org.junit.Test;
 
 /*
@@ -180,5 +182,14 @@ public class SQLUtilitiesTest {
 		sql.startLog("Test", "nil", "nil");
 		
 		sql.stopLog("Test", "nil", "nil", "nil");
+	}
+	
+	@Test
+	public void testMethodCounts() {
+		Settings settings = new Settings();
+		
+		SQLUtilities sql = new SQLUtilities(settings);
+		
+		Map<String, Integer> returned = sql.getDailyMethodCounts();
 	}
 }

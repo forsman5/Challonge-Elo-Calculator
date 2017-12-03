@@ -8,12 +8,11 @@ import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Stack;
 
 import org.apache.commons.lang3.time.StopWatch;
-
-//TODO
-//daily reports
 
 /*
  * Class to mock the jdbc driver, and to connect to the mysql implementation.
@@ -144,9 +143,6 @@ public class SQLUtilities {
 			stopLog("GetLastCheckedDate", "nil", out.toString(), "nil");
 		} catch (SQLException e) {
 			errorLog("GetLastCheckedDate", "nil", e);
-			
-			//should be caught by next
-			e.printStackTrace();
 		}
 		
 		return out.toString();
@@ -208,9 +204,6 @@ public class SQLUtilities {
 			
 			stopLog("GetPlayerName", "" + id, toReturn, "nil");
 		} catch (SQLException e) {
-			//should be caught by next
-			e.printStackTrace();
-			
 			errorLog("GetPlayerName", "" + id, e);
 		}
 		
@@ -287,9 +280,6 @@ public class SQLUtilities {
 			
 			//else, toReturn already initialized to -1
 		} catch (SQLException e) {
-			//should be caught by next
-			e.printStackTrace();
-			
 			errorLog("GetPlayerID", name, e);
 		}
 		
@@ -376,9 +366,6 @@ public class SQLUtilities {
 			
 			//else, toReturn already initialized to -1
 		} catch (SQLException e) {
-			//should be caught by next
-			e.printStackTrace();
-			
 			errorLog("GetNameFromAlias", alias, e);
 		}
 		
@@ -478,11 +465,7 @@ public class SQLUtilities {
 			
 			//else, toReturn already initialized to -1
 		} catch (SQLException e) {
-			//should be caught by next
-			e.printStackTrace();
-			
 			errorLog("GetElo", "" + id, e);
-			
 		}
 		
 		return toReturn;
@@ -544,9 +527,6 @@ public class SQLUtilities {
 			
 			//else, toReturn already initialized to -1
 		} catch (SQLException e) {
-			//should be caught by next
-			e.printStackTrace();
-			
 			errorLog("GetEmptyPlayers", "nil", e);
 		}
 		
@@ -584,9 +564,6 @@ public class SQLUtilities {
 			
 			//else, toReturn already initialized to -1
 		} catch (SQLException e) {
-			//should be caught by next
-			e.printStackTrace();
-			
 			errorLog("GetAliases", name, e);
 		}
 		
@@ -621,8 +598,6 @@ public class SQLUtilities {
 			
 			stopLog("DeletePlayer", "" + player_id, "nil", "nil");
 		} catch (SQLException e) {
-			e.printStackTrace();
-			
 			errorLog("DeletePlayer", "" + player_id, e);
 		}
 	}
@@ -668,11 +643,7 @@ public class SQLUtilities {
 			
 			//else, toReturn already initialized to -1
 		} catch (SQLException e) {
-			//should be caught by next
-			
 			//if something breaks, empty array is still returned
-			e.printStackTrace();
-			
 			errorLog("GetMatches", "" + playerId, e);
 		}
 		
@@ -703,8 +674,6 @@ public class SQLUtilities {
 			stopLog("UpdatePlayerId", "" + oldId, "nil", "Updated player_id " + oldId + " to be merged with " + playerId);
 		} catch (SQLException e) {
 			errorLog("UpdatePlayerId", "" + oldId, "Updated player_id " + oldId + " to be merged with " + playerId, e);
-			
-			e.printStackTrace();
 		}
 	}
 
@@ -723,8 +692,6 @@ public class SQLUtilities {
 			
 			stopLog("UpdateAliasReferences", oldName, "nil", "Set all aliases previously referring to " + oldName + " to now refer to " + newName);
 		} catch (SQLException e) {
-			e.printStackTrace();
-			
 			errorLog("UpdateAliasReferences", oldName, "Set all aliases previously referring to " + oldName + " to now refer to " + newName, e);
 		}
 	}
@@ -851,5 +818,59 @@ public class SQLUtilities {
 	 */
 	public void errorLog(String method, String in, Exception e) {
 		errorLog(method, in, "", e);
+	}
+
+	/*
+	 * Get a count of number of calls to every distinct method name in the database for today's date.
+	 */
+	public Map<String, Integer> getDailyMethodCounts() {
+		// get unique method names
+		startLog("GetDailyMethodCounts", "nil", "nil");
+		
+		Map<String, Integer> toReturn = new HashMap<String, Integer>();
+		
+		ArrayList<String> methods = new ArrayList<String>();
+		
+		try {
+			CallableStatement cs = conn.prepareCall("SELECT DISTINCT method FROM event_log;");
+			
+			ResultSet rs = cs.executeQuery();
+			
+			while (rs.next()) {
+				methods.add(rs.getString(1));
+			}
+
+			//else, toReturn already initialized to -1
+		} catch (SQLException e) {
+			e.printStackTrace();
+			errorLog("GetDailyMethodCounts", "nil", "Failed getting distinct method names.", e);
+		}
+		
+		try {
+			CallableStatement cs = conn.prepareCall("{call GetCountOfMethod(?)}");
+			
+			for (String method : methods) {
+				//done here to avoid repeatedly calling prepareCall.
+				//according to jdbc documentation, that is a very expensive call
+				cs.setString(1, method);
+				
+				ResultSet rs = cs.executeQuery();
+				
+				while (rs.next()) {
+					toReturn.put(method, rs.getInt(1));
+				}
+			}
+		} catch (SQLException e) {
+			errorLog("GetDailyMethodCounts", "nil", "Failed getting counts for method names.", e);
+			
+			e.printStackTrace();
+		}
+		
+		//prevent accessing first element if empty set
+		String setDesc = (toReturn.size() == 0 ? "Empty Set" : "Set with first key " + toReturn.keySet().toArray()[0]);
+		
+		stopLog("GetDailyMethodCounts", "nil", "Map, with key set " + setDesc, "nil");
+		
+		return toReturn;
 	}
 }

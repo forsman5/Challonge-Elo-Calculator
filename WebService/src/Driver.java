@@ -1,5 +1,7 @@
 import java.io.IOException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Map;
 
 import okhttp3.*;
 import org.json.*;
@@ -69,6 +71,14 @@ public class Driver {
 		
 		//remove all void players added
 		removeEmptyPlayerRecords(sql);
+		
+		if (settings.getBool("DAILY_REPORT")) {
+			//send a daily report to the systems administrator as well as the end user
+			//get array of addresses together
+			String[] dests = new String[] { ERROR_ALERT_DESTINATION, settings.getString("ADMINISTRATOR_DESTINATION") };
+			
+			sendReport(dests, ERROR_ALERT_ORIGINATION, getReport(sql));
+		}
 	}	
 
 	/*
@@ -625,5 +635,44 @@ public class Driver {
 				sql.deletePlayer(p.player_id);
 			}
 		}
+	}
+	
+	/*
+	 * sends the given report. Sends to every valid email address given in dests, using the standard
+	 * email specifications provided in orig.
+	 * 
+	 * Provides a subject line as specified
+	 */
+	private static void sendReport(String[] dests, String[] orig, String report) {
+		//get current timestamp
+		java.util.Date temp = new java.util.Date(); //current time
+		Timestamp date = new Timestamp(temp.getTime());
+		
+		String subject = "Daily Report for Challonge Parser Actions taken on " + date.toString();
+		
+		for (String dest : dests) {
+			if (!Utility.isNull(dest)) {
+				Utility.sendEmail(dest, orig, subject, report);
+			}
+		}
+	}
+	
+	/*
+	 * Gets the report for the total number of each action taken during today's work.
+	 */
+	private static String getReport(SQLUtilities sql) {
+		String report = "Report for today:\nMethod Name: Amount of Calls\n";
+		
+		Map<String, Integer> methodCounts = sql.getDailyMethodCounts();
+		
+		for (String method : methodCounts.keySet()) {
+			int count = methodCounts.get(method);
+			
+			report += method + ": " + count + "\n";
+		}
+		
+		report += "add error reporting here??\n\nQuestions? Reply to this email!\n\nThanks for using Challonge Elo Parser! Have a good day!";
+		
+		return report;
 	}
 }
