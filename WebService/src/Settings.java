@@ -29,7 +29,7 @@ public class Settings {
 	 * Where to send email alerts to when there is an error
 	 */
 	private final String[] PRIVATE_SETTINGS = {"ERROR_ALERT_DESTINATION:jrforsman@gmail.com", 
-											   "ERROR_ALERT_ORIGINATION:{\"powellsmash@gmail.com\", \"wicklem1\"}"};
+											   "ERROR_ALERT_ORIGINATION:{\"powellsmash@gmail.com\", \"\"}"};
 	
 	private final String FILE_LOCATION = "dat/settings.cfg";
 	private final int MAX_ARRAY_SIZE = 255;

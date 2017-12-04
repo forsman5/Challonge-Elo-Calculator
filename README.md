@@ -5,6 +5,12 @@ This is the source code for a web app which has a few major components.
 - A back end, written in Java. Detailled below.
 - A database which provided information for the front end and is populated by the backend.
 
+## Overview
+- The backend webservice runs once a day (configurable).
+- When it runs, it processes data and places it into the backend MySQL database.
+  - For more information, see the backend section below.
+- Then, the frontend accesses this data and displays it to the user on a webpage.
+
 ## The Backend
 Currently, the majority of the code is written in the backend, which is a service which will run, say, every day, and
 populate the database. In order to accomplish this, the backend:
@@ -26,11 +32,10 @@ populate the database. In order to accomplish this, the backend:
 	  - This is done to keep an updated elo score for each player as time moves on.
 	  - Filters bad matches and performs no calculations for those.
 	    - For example, disqualifications.
+	- All tournaments are processed in the order they occurred, in order to keep elo changes consistent.
 	
 	
 - Email alerts are sent to a systems administrator whenever something fails.
+- A daily email report is sent to the end user in order to inform them of actions taken on the day (tournaments processed, etc).
 - All events are logged, with times started and time elapased.
 - Many other relevant settings are available for an end user to select, without having any access to the source code.
-
-## Planned:
-- Daily reports sent to an end user and a systems administrator from the backend.
