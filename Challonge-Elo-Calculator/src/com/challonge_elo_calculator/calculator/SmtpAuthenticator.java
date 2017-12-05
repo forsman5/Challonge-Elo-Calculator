@@ -1,3 +1,4 @@
+package com.challonge_elo_calculator.calculator;
 import javax.mail.Authenticator;
 import javax.mail.PasswordAuthentication;
 

@@ -60,12 +60,12 @@ DROP TABLE IF EXISTS event_log;
 CREATE TABLE event_log
 (
   event_id int unsigned NOT NULL auto_increment,
-  date_occured DATETIME NOT NULL,
+  date_occurred DATETIME NOT NULL,
   method VARCHAR(255) NOT NULL,
   param VARCHAR(255),
   returned VARCHAR(255),
   time_elapsed INT NOT NULL,
-  message VARCHAR(255),
+  message VARCHAR(2047),
   
   PRIMARY KEY (event_id)
 );

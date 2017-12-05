@@ -3,6 +3,8 @@ https://docs.djangoproject.com/en/1.11/intro/tutorial01/
 https://hackernoon.com/a-beginners-guide-to-progressive-web-apps-the-frontend-web-424b6d697e35
 https://www.codementor.io/olatundegaruba/nodejs-restful-apis-in-10-minutes-q0sgsfhbd
 
+select players.name, placings.placing, tournaments.name from (players inner join (tournaments inner join placings on placings.tourney_id = tournaments.tourney_id) on players.player_id = placings.player_id) where players.name = "Sahil K";
+
 
 ???
 

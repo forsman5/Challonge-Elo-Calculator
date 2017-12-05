@@ -10,7 +10,7 @@ IN timeElap INT,
 IN mess VARCHAR(255)
 )
 BEGIN
-INSERT INTO event_log (date_occured, method, param, returned, time_elapsed, message)
+INSERT INTO event_log (date_occurred, method, param, returned, time_elapsed, message)
 			VALUES (date1, meth, paramVal, outVal, timeElap, mess);
 END //
 DELIMITER ;

@@ -1,3 +1,4 @@
+package com.challonge_elo_calculator.calculator;
 /*
  * Wrapper class for the player table in the database.
  * 

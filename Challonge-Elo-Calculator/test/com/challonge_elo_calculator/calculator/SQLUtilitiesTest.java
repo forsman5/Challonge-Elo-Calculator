@@ -1,6 +1,15 @@
+package com.challonge_elo_calculator.calculator;
 import static org.junit.Assert.*;
 
+import java.util.Map;
+
 import org.junit.Test;
+
+import com.challonge_elo_calculator.calculator.Match;
+import com.challonge_elo_calculator.calculator.Player;
+import com.challonge_elo_calculator.calculator.SQLUtilities;
+import com.challonge_elo_calculator.calculator.Settings;
+import com.challonge_elo_calculator.calculator.Tournament;
 
 /*
  * Test class to make running single methods easier.
@@ -180,5 +189,14 @@ public class SQLUtilitiesTest {
 		sql.startLog("Test", "nil", "nil");
 		
 		sql.stopLog("Test", "nil", "nil", "nil");
+	}
+	
+	@Test
+	public void testMethodCounts() {
+		Settings settings = new Settings();
+		
+		SQLUtilities sql = new SQLUtilities(settings);
+		
+		Map<String, Integer> returned = sql.getDailyMethodCounts();
 	}
 }
