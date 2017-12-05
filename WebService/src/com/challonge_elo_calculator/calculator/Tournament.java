@@ -1,3 +1,4 @@
+package com.challonge_elo_calculator.calculator;
 /*
  * Class to model a tournament object stored in the database.
  */

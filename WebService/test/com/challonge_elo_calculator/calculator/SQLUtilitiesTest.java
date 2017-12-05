@@ -1,8 +1,15 @@
+package com.challonge_elo_calculator.calculator;
 import static org.junit.Assert.*;
 
 import java.util.Map;
 
 import org.junit.Test;
+
+import com.challonge_elo_calculator.calculator.Match;
+import com.challonge_elo_calculator.calculator.Player;
+import com.challonge_elo_calculator.calculator.SQLUtilities;
+import com.challonge_elo_calculator.calculator.Settings;
+import com.challonge_elo_calculator.calculator.Tournament;
 
 /*
  * Test class to make running single methods easier.

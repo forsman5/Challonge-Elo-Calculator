@@ -1,3 +1,4 @@
+package com.challonge_elo_calculator.calculator;
 /*
  * wrapper class to insert a match record into a tournament table
  */

@@ -1,4 +1,4 @@
-# PowellSmashRankings
+# Challonge Elo Calculator
 This is the source code for a web app which has a few major components.
 - A front end, which is still to be completed.
   - Most likely will contain an API and javascript to call and read from said API.

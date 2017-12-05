@@ -1,4 +1,10 @@
+package com.challonge_elo_calculator.calculator;
 import org.junit.Test;
+
+import com.challonge_elo_calculator.calculator.Alias;
+import com.challonge_elo_calculator.calculator.SQLUtilities;
+import com.challonge_elo_calculator.calculator.Settings;
+import com.challonge_elo_calculator.calculator.Utility;
 
 /*
  * Simple test class for methods in Alias.java

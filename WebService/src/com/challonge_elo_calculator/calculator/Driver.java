@@ -1,3 +1,4 @@
+package com.challonge_elo_calculator.calculator;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.text.DateFormat;
