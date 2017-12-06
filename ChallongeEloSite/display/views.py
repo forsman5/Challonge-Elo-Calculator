@@ -11,15 +11,16 @@ def index(request):
 
 def rankings(request):
 	#get latest time
-	try:
-		line = str(tournaments.objects.latest(field_name='date_started').date_started)
-		t = datetime.strptime(line, '%Y-%m-%d')
-	except ValueError as v:
-		if len(v.args) > 0 and v.args[0].startswith('unconverted data remains: '):
-			line = line[:-(len(v.args[0]) - 26)]
-			t = datetime.strptime(line, '%Y-%m-%d')
-		else:
-			raise
+	line = str(tournaments.objects.latest(field_name='date_started').date_started)
+	line = line[:10]
 
 	#get only the latest date, not date and time
-	return render(request, 'display/rankings.html', {'lastDate': t})
+
+	return render(request, 'display/rankings.html', {'lastDate': line, 'players': players.objects.exclude(name__icontains=" and ").order_by('-elo')})
+def doubles_rankings(request):
+	#get latest time
+	line = str(tournaments.objects.latest(field_name='date_started').date_started)
+	line = line[:10]
+
+	#get only the latest date, not date and time
+	return render(request, 'display/doubles.html', {'lastDate': line, 'players': players.objects.filter(name__contains=" and ").order_by('-elo')})

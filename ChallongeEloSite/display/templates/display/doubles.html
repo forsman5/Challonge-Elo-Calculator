@@ -12,15 +12,15 @@
 <div class="center"><img width ="100%" height = "35%" alt="logo" src="{% static 'display/logo.png' %}" />
 <ul class="top">
 	<li><a href="index.html">About Us</a></li>
-	<li><a class="active" href="#">Individual Elo</a></li>
-	<li><a href="doubles.html">Team Elo</a></li>
+	<li><a href="rankings.html">Individual Elo</a></li>
+	<li><a class="active" href="#">Team Elo</a></li>
 	<li><a href="tournaments.html">Tournaments</a></li>
 	<li><a href="players.html">Players</a></li>
 	<li><a href="blog.html">Blog</a></li>
 </ul>
 
-<h2><b>Powell Smash Rankings</b></h2>
-<p><b>Click a player's name to see their records.</b></p>
+<h2><b>Powell Smash Rankings -- Doubles</b></h2>
+<p><b>Click a team's name to see their records.</b></p>
 <p><b>Includes all tournament data up to: {{lastDate}}</b></p>
 {% for player in players %}
 	<p>{{ forloop.counter }}. <a href="/players/{{ player.player_id }}">{{ player.name }}</a>  |  {{ player.elo }}</p>
