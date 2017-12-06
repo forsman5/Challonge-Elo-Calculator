@@ -19,6 +19,9 @@ class tournaments(models.Model):
 	def __str__(self):
 		return self.name + ", occurred at: " + str(self.date_started) + " found online at: " + self.link
 
+	def getDate(self):
+		return str(self.date_started)[:10]
+
 	class Meta:
 		db_table="tournaments"
 
