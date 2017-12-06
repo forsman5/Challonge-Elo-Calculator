@@ -23,7 +23,7 @@
 <p><b>Click a player's name to see their records.</b></p>
 <p><b>Includes all tournament data up to: {{lastDate}}</b></p>
 {% for player in players %}
-	<p>{{ forloop.counter }}. <a href="/players/{{ player.player_id }}">{{ player.name }}</a>  |  {{ player.elo }}</p>
+	<p>{{ forloop.counter }}. <a href="{% url 'player_detail' player.player_id %}">{{ player.name }}</a>  |  {{ player.elo }}</p>
 {% endfor %}
 </div>
 </body>
