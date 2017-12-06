@@ -7,9 +7,8 @@ class aliases(models.Model):
 	def __str__(self):
 		return self.name + ":" + self.alias
 
-
-#	class Meta:
-#		db_table="players"
+	class Meta:
+		db_table="aliases"
 
 class tournaments(models.Model):
 	tourney_id = models.AutoField(primary_key=True, db_column="tourney_id")
@@ -20,8 +19,8 @@ class tournaments(models.Model):
 	def __str__(self):
 		return self.name + ", occurred at: " + str(self.date_started) + " found online at: " + self.link
 
-#	class Meta:
-#		db_table="players"
+	class Meta:
+		db_table="tournaments"
 
 class players(models.Model):
 	player_id = models.AutoField(primary_key=True, db_column="player_id")
@@ -31,8 +30,8 @@ class players(models.Model):
 	def __str__(self):
 		return "Player " + self.name + " has an elo of " + str(self.elo)
 
-#	class Meta:
-#		db_table="players"
+	class Meta:
+		db_table="players"
 
 class matches(models.Model):
 	match_id = models.AutoField(primary_key=True, db_column="match_id")
@@ -45,8 +44,8 @@ class matches(models.Model):
 	def __str__(self):
 		return str(self.winner_id) + " " + str(self.winner_score) + ":" + str(self.loser_score) + " " + str(self.loser_id) + " at touranment " + str(self.tourney_id)
 
-#	class Meta:
-#		db_table="players"
+	class Meta:
+		db_table="matches"
 
 class placings(models.Model):
 	placing_id = models.AutoField(primary_key=True, db_column="placing_id")
@@ -57,5 +56,5 @@ class placings(models.Model):
 	def __str__(self):
 		return str(self.player_id) + " placed " + str(self.placing) + " at " + str(self.tourney_id)
 
-#	class Meta:
-#		db_table="players"
+	class Meta:
+		db_table="placings"
