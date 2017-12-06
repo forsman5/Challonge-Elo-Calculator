@@ -42,7 +42,6 @@ populate the database. In order to accomplish this, the backend:
 	    - For example, disqualifications.
 	- All tournaments are processed in the order they occurred, in order to keep elo changes consistent.
 	
-	
 - Email alerts are sent to a systems administrator whenever something fails.
 - A daily email report is sent to the end user in order to inform them of actions taken on the day (tournaments processed, etc).
 - All events are logged, with times started and time elapased.
