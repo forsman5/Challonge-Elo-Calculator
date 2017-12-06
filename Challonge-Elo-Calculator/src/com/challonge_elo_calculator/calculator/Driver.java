@@ -204,7 +204,7 @@ public class Driver {
 			//take the date the tournament was started, not finished
 			
 			//checking for null pointer exceptions
-			if (j.get("start_at") == null) {
+			if (j.get("start_at") != null) {
 				//this is the date specified in the tournament settings as when the tournament *SHOULD* start
 				toAdd.dateStarted = j.getString("start_at");
 			} else {
