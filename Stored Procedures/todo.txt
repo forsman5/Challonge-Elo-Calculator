@@ -1,0 +1,11 @@
+https://aws.amazon.com/getting-started/
+https://aws.amazon.com/sdk-for-java/
+https://aws.amazon.com/getting-started/tutorials/launch-a-virtual-machine/
+https://aws.amazon.com/getting-started/tutorials/get-a-domain/
+https://aws.amazon.com/getting-started/tutorials/backup-to-s3-cli/
+https://aws.amazon.com/getting-started/tutorials/create-mysql-db/
+https://aws.amazon.com/ec2/?nc2=h_m1
+https://aws.amazon.com/ec2/pricing/
+https://aws.amazon.com/ec2/pricing/reserved-instances/pricing/
+https://aws.amazon.com/ec2/spot/pricing/
+https://aws.amazon.com/ec2/pricing/on-demand/

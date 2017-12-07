@@ -205,6 +205,8 @@ public class Driver {
 			
 			//checking for null pointer exceptions
 			if (j.get("start_at") != null) {
+				//TODO DEBUG
+				
 				//this is the date specified in the tournament settings as when the tournament *SHOULD* start
 				toAdd.dateStarted = j.getString("start_at");
 			} else {

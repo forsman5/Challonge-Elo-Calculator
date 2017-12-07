@@ -1,5 +1,4 @@
 #!/bin/sh
-mysql -h "localhost" -u "root" "-padmin" "powellsmashdb" < "CreateTables.sql"
 mysql -h "localhost" -u "root" "-padmin" "powellsmashdb" < "GetIDFromName.sql"
 mysql -h "localhost" -u "root" "-padmin" "powellsmashdb" < "GetLatestTourneyDate.sql"
 mysql -h "localhost" -u "root" "-padmin" "powellsmashdb" < "GetNameFromAlias.sql"
