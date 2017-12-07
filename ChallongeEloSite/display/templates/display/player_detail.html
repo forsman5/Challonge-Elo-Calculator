@@ -1,0 +1,46 @@
+<html>
+
+{% load static %}
+
+<head>
+	<title>Powell Smash Rankings</title>
+	<link href="{% static 'display/style.css' %}" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="background"><img alt="" class="stretch" src="{% static 'display/background.png' %}" /></div>
+
+<div class="center"><img width ="100%" height = "35%" alt="logo" src="{% static 'display/logo.png' %}" />
+<ul class="top">
+	<li><a href="{% url 'index' %}">About Us</a></li>
+	<li><a href="{% url 'rankings' %}">Individual Elo</a></li>
+	<li><a href="{% url 'doubles' %}">Team Elo</a></li>
+	<li><a href="{% url 'tournaments' %}">Tournaments</a></li>
+	<li><a href="{% url 'players_page' %}">Players</a></li>
+</ul>
+
+<h2>Stats and Ranking for {{ player.name }}</h2>
+{{ player.name }}, Current Elo: {{ player.elo }}
+<p></p>
+<table border = "1">
+<tr>
+<th>Date</th>
+<th>Name</th>
+<th>Placement</th>
+</tr>
+{% for curr_placing in player.placings_set.all %}
+<tr>
+<td>{{ curr_placing.tourney_id.getDate }}</td>
+<td><a href = "{{ curr_placing.tourney_id.link }}">{{ curr_placing.tourney_id.name }}</a></td>
+<td>{{ curr_placing.placing }}</td>
+</tr>
+{% endfor %}
+</table>
+<p><b>Against <a href = "Joe F.html">Joe F</a>:</b></p>
+<p>Quentin W 2-0 Joe F at Dublin Donato's #7</p>
+<p>Total Record in Sets: 1-0</p>
+<p>Total Record in Games: 2-0</p>
+<p> </p>
+-->
+</div>
+</body>
+</html>

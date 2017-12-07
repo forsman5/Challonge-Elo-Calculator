@@ -24,6 +24,7 @@ class tournaments(models.Model):
 
 	class Meta:
 		db_table="tournaments"
+		ordering=['date_started']
 
 class players(models.Model):
 	player_id = models.AutoField(primary_key=True, db_column="player_id")
@@ -61,3 +62,4 @@ class placings(models.Model):
 
 	class Meta:
 		db_table="placings"
+		ordering=['tourney_id__date_started']
