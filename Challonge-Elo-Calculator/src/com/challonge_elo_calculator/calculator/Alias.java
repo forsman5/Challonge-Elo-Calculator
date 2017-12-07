@@ -63,17 +63,22 @@ public class Alias {
 					int matchesOne = sql.getMatches(firstId).length;
 					int matchesTwo = sql.getMatches(secondId).length;
 					
-					sql.updatePlayerId(secondId, firstId);
-					sql.updateAliasReference(a.alias, a.name);
-					
-					double ratioOne = matchesOne / (matchesOne + matchesTwo);
-					double ratioTwo = 1 - ratioOne;
-					
-					//new elo for unified player is the average of both of the old elos weighted by number of matches played.
-					//cannot be truly fixed without a recalc, which should be exposed to a sys adm console on the webiste
-					int newElo = (int) Math.round(firstElo * ratioOne + secondElo * ratioTwo);
-					
-					sql.setElo(firstId, newElo);
+					//avoiding a divide by zero
+					//should never happen but...
+					if (matchesOne != 0 || matchesTwo != 0) {
+						sql.updatePlayerId(secondId, firstId); 
+						sql.updateAliasReference(a.alias, a.name);
+						
+						double ratioOne = matchesOne / (matchesOne + matchesTwo);
+						double ratioTwo = 1 - ratioOne;
+						
+						//new elo for unified player is the average of both of the old elos weighted by number of matches played.
+						//cannot be truly fixed without a recalc, which should be exposed to a sys adm console on the webiste
+						int newElo = (int) Math.round(firstElo * ratioOne + secondElo * ratioTwo);
+						
+						sql.setElo(firstId, newElo);
+					}
+					//else dont change elo
 	
 				}
 				

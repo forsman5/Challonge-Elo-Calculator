@@ -585,17 +585,18 @@ public class SQLUtilities {
 		try {
 			//these are not exposed individually
 			//if they were, possible that theres leftover match records with no players attached..
-			CallableStatement cs = conn.prepareCall("{call DeletePlayer(?)}");
 			CallableStatement cs1 = conn.prepareCall("{call DeletePlacings(?)}");
 			CallableStatement cs2 = conn.prepareCall("{call DeleteMatches(?)}");
+			CallableStatement cs = conn.prepareCall("{call DeletePlayer(?)}");
 			
 			cs.setInt(1, player_id);
 			cs1.setInt(1, player_id);
 			cs2.setInt(1, player_id);
 			
-			cs.executeQuery();
+			//order here is important, parent rows deleted last
 			cs1.executeQuery();
 			cs2.executeQuery();
+			cs.executeQuery();
 			
 			stopLog("DeletePlayer", "" + player_id, "nil", "nil");
 		} catch (SQLException e) {
