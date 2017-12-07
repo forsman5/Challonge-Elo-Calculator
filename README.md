@@ -58,7 +58,9 @@ populate the database. In order to accomplish this, the backend:
 - A daily email report is sent to the end user in order to inform them of actions taken on the day (tournaments processed, etc).
 - All events are logged, with times started and time elapased.
 - Many other relevant settings are available for an end user to select, without having any access to the source code.
-- New teams are entered as 
+- New teams are entered with an elo taken as the average of both individuals, if they exist as players.
+  - This is done to avoid creating teams of very skilled individuals who enter one tournament with 1000 elo, and unfairly
+    causing established teams with 1200 elo to take larger elo hits than deserved against these teams.
 
 ## Planned
 - Once the front end is complete, there should be a way to log into an administrator account.

@@ -34,6 +34,46 @@ class players(models.Model):
 	def __str__(self):
 		return "Player " + self.name + " has an elo of " + str(self.elo)
 
+	#return ever opponent this player has ever defeated
+	def getWonOpponents(self):
+		toReturn = []
+		for match in self.won_matches.all():
+			if (not(match.loser_id in toReturn)):
+				toReturn.append(match.loser_id)
+
+		return toReturn
+
+	#get every opponent ever lost to
+	def getLostOpponents(self):
+		toReturn = []
+		for match in self.lost_matches.all():
+			if (not(match.winner_id in toReturn)):
+				toReturn.append(match.winner_id)
+
+		return toReturn
+
+	def getOpponents(self):
+		beat = self.getWonOpponents()
+		lost = self.getLostOpponents()
+
+		toReturn = []
+
+		for id in beat:
+			toReturn.append(id)
+
+		for id in lost:
+			if (not(id in toReturn)):
+				toReturn.append(id)
+
+		toReturn.sort(key=lambda x: x.name)
+		return toReturn
+
+	def getMatchesLostTo(self, oppId):
+		return self.lost_matches.filter(winner_id=oppId).order_by('tourney_id__date_started')
+
+	def getMatchesWonAgainst(self, oppId):
+		return self.won_matches.filter(loser_id=oppId).order_by('tourney_id__date_started')
+
 	class Meta:
 		db_table="players"
 

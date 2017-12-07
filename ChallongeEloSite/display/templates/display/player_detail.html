@@ -1,6 +1,7 @@
 <html>
 
 {% load static %}
+{% load main_tags %}
 
 <head>
 	<title>Powell Smash Rankings</title>
@@ -25,7 +26,7 @@
 <tr>
 <th>Date</th>
 <th>Name</th>
-<th>Placement</th>
+<th>Finished</th>
 </tr>
 {% for curr_placing in player.placings_set.all %}
 <tr>
@@ -35,12 +36,26 @@
 </tr>
 {% endfor %}
 </table>
-<p><b>Against <a href = "Joe F.html">Joe F</a>:</b></p>
-<p>Quentin W 2-0 Joe F at Dublin Donato's #7</p>
-<p>Total Record in Sets: 1-0</p>
-<p>Total Record in Games: 2-0</p>
+
+{% for oppId in player.getOpponents %}
+<!-- loading matches -->
+{% getMatchesWonAgainstTag player oppId.player_id as matchesWon %}
+{% getMatchesLostAgainstTag player oppId.player_id as matchesLost %}
+
+{% getSetAndGameCount matchesWon matchesLost as results %}
+
+<p><b>Against <a href = "{% url 'player_detail' oppId.player_id %}">{{ oppId.name }}</a>:</b></p>
+{% for match in matchesWon %}
+<p>{{ player.name }} {{ match.winner_score }}-{{ match.loser_score }} {{ match.loser_id.name }} at {{ match.tourney_id.name }}</p>
+{% endfor %}
+{% for match in matchesLost %}
+<p>{{ match.winner_id.name }} {{ match.winner_score }}-{{ match.loser_score }} {{ player.name }} at {{ match.tourney_id.name }}</p>
+{% endfor %}
+<p>Total Record in Games: {{ results.0 }}</p>
+<p>Total Record in Sets: {{ results.1 }}</p>
+
 <p> </p>
--->
+{% endfor %}
 </div>
 </body>
 </html>
