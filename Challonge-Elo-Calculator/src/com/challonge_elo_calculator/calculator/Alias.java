@@ -66,7 +66,15 @@ public class Alias {
 					sql.updatePlayerId(secondId, firstId);
 					sql.updateAliasReference(a.alias, a.name);
 					
-					double ratioOne = matchesOne / (matchesOne + matchesTwo);
+					int sumMatches = matchesOne + matchesTwo;
+					
+					if (sumMatches == 0) {
+						//no matches in the db
+						//both elos should be 1000, should remain this, so take either one
+						sumMatches = 1;
+					}
+					
+					double ratioOne = matchesOne / sumMatches;
 					double ratioTwo = 1 - ratioOne;
 					
 					//new elo for unified player is the average of both of the old elos weighted by number of matches played.
