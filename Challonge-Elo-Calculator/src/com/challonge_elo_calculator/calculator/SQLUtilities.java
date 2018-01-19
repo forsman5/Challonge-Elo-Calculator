@@ -57,7 +57,7 @@ public class SQLUtilities {
 			e.printStackTrace();
 		}
 		
-        conn = getConnection(settings.getString("DATABASE_HOST"), settings.getString("DATABASE_NAME"), settings.getString("DATABASE_USERNAME"), settings.getString("DATABASE_PASSWORD"));
+        conn = getConnection(settings.getString("DATABASE_NAME"), settings.getString("DATABASE_USERNAME"), settings.getString("DATABASE_PASSWORD"));
         
         watches = new Stack<StopWatch>();
 	}
@@ -79,7 +79,7 @@ public class SQLUtilities {
 			e.printStackTrace();
 		}
 		
-        conn = getConnection(settings.getString("DATABASE_HOST"), settings.getString("DATABASE_NAME"), settings.getString("DATABASE_USERNAME"), settings.getString("DATABASE_PASSWORD"));
+        conn = getConnection(settings.getString("DATABASE_NAME"), settings.getString("DATABASE_USERNAME"), settings.getString("DATABASE_PASSWORD"));
         
         watches = new Stack<StopWatch>();
 	}	
@@ -87,8 +87,8 @@ public class SQLUtilities {
 	/*
 	 * Gets the standard connection object used to connect to the database.
 	 */
-	private Connection getConnection(String host, String db, String user, String pass) {
-		String connectionString = "jdbc:mysql://" + host + "/" + db + "?"
+	private Connection getConnection(String db, String user, String pass) {
+		String connectionString = "jdbc:mysql://localhost/" + db + "?"
                 + "user=" + user + "&password=" + pass +"&useSSL=false";
 
 		Connection conn = null;

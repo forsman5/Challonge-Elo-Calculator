@@ -81,10 +81,10 @@ DATABASES = {
 		#	'read_default_file': 'MySql.cnf',
 		#},
 		#Why doesnt this work
-		'NAME': 'challongepowell',
-		'USER': 'admin',
-		'PASSWORD': 'password',
-		'HOST': 'petlanddb.cv18qdrgjzn8.us-east-2.rds.amazonaws.com',
+		'NAME': 'powellsmashdb',  
+		'USER': 'root',  
+		'PASSWORD': 'admin',  
+		'HOST': 'localhost',  
 		'PORT': '3306',
     }
 }
