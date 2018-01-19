@@ -274,6 +274,28 @@ public class Driver {
 				toAdd.player_id = id;
 				toAdd.name = name;
 				
+				//check if it is a doubles team
+				CharSequence x = " and ";
+				if (name.contains(x)) {
+					//it is
+					String firstName = name.substring(0, name.indexOf(" and "));
+					String secondName = name.substring(name.indexOf(" and "));
+					
+					int firstId = sql.getIDFromAlias(firstName);
+					int secondId = sql.getIDFromAlias(secondName);
+					
+					if (firstId != -1 && secondId != -1) {
+						//else, set to 1000 via new Player
+						
+						//this sets the elo of a newly created doubles team to be that of the average of their individual elos
+						//this is done to avoid "smurfing", where an established doubles team, say at 1100, loses to two top players (say 1500+ each)
+						//who team for the first time, having an elo of "1000", and then destroying the 1100 team -- who should be expected to lose to them!
+						//thus, this avoids the greater, unfair, elo loss to the 1100 team.
+						
+						toAdd.elo = (int) Math.round(((double) sql.getElo(firstId) + (double) sql.getElo(secondId)) / 2.0);
+					}
+				}
+				
 				//adding new player to the database
 				sql.insertPlayer(toAdd);
 			} else {
