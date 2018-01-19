@@ -1,0 +1,61 @@
+<html>
+
+{% load static %}
+{% load main_tags %}
+
+<head>
+	<title>Powell Smash Rankings</title>
+	<link href="{% static 'display/style.css' %}" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="background"><img alt="" class="stretch" src="{% static 'display/background.png' %}" /></div>
+
+<div class="center"><img width ="100%" height = "35%" alt="logo" src="{% static 'display/logo.png' %}" />
+<ul class="top">
+	<li><a href="{% url 'index' %}">About Us</a></li>
+	<li><a href="{% url 'rankings' %}">Individual Elo</a></li>
+	<li><a href="{% url 'doubles' %}">Team Elo</a></li>
+	<li><a href="{% url 'tournaments' %}">Tournaments</a></li>
+	<li><a href="{% url 'players_page' %}">Players</a></li>
+</ul>
+
+<h2>Stats and Ranking for {{ player.name }}</h2>
+{{ player.name }}, Current Elo: {{ player.elo }}
+<p></p>
+<table border = "1">
+<tr>
+<th>Date</th>
+<th>Name</th>
+<th>Finished</th>
+</tr>
+{% for curr_placing in player.placings_set.all %}
+<tr>
+<td>{{ curr_placing.tourney_id.getDate }}</td>
+<td><a href = "{{ curr_placing.tourney_id.link }}">{{ curr_placing.tourney_id.name }}</a></td>
+<td>{{ curr_placing.placing }}</td>
+</tr>
+{% endfor %}
+</table>
+
+{% for oppId in player.getOpponents %}
+<!-- loading matches -->
+{% getMatchesWonAgainstTag player oppId.player_id as matchesWon %}
+{% getMatchesLostAgainstTag player oppId.player_id as matchesLost %}
+
+{% getSetAndGameCount matchesWon matchesLost as results %}
+
+<p><b>Against <a href = "{% url 'player_detail' oppId.player_id %}">{{ oppId.name }}</a>:</b></p>
+{% for match in matchesWon %}
+<p>{{ player.name }} {{ match.winner_score }}-{{ match.loser_score }} {{ match.loser_id.name }} at {{ match.tourney_id.name }}</p>
+{% endfor %}
+{% for match in matchesLost %}
+<p>{{ match.winner_id.name }} {{ match.winner_score }}-{{ match.loser_score }} {{ player.name }} at {{ match.tourney_id.name }}</p>
+{% endfor %}
+<p>Total Record in Games: {{ results.0 }}</p>
+<p>Total Record in Sets: {{ results.1 }}</p>
+
+<p> </p>
+{% endfor %}
+</div>
+</body>
+</html>
